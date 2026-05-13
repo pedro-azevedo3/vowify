@@ -66,6 +66,17 @@
   --vw-red: #e1124e;
 }
 
+/* CRM dashboard main content */
+.crm-main {
+  padding: 80px 20px 64px;
+}
+@media (min-width: 1024px) {
+  .crm-main {
+    margin-left: 240px;
+    padding: 32px 32px 64px;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -195,6 +206,15 @@
 @keyframes vwDropdown {
   from { opacity: 0; transform: translateY(-8px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes vwToast {
+  0%   { opacity: 0; transform: translateY(10px); }
+  15%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+.saved-toast {
+  animation: vwToast 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Respect prefers-reduced-motion */

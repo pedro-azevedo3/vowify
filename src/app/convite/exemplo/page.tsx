@@ -1,7 +1,34 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, Suspense, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
+const GRADIENTS: Record<string, string> = {
+  violet:   "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)",
+  ocean:    "linear-gradient(135deg,#0ea5e9 0%,#6366f1 60%,#8b5cf6 100%)",
+  sunset:   "linear-gradient(135deg,#f97316 0%,#ec4899 60%,#a855f7 100%)",
+  forest:   "linear-gradient(135deg,#10b981 0%,#0891b2 60%,#6366f1 100%)",
+  midnight: "linear-gradient(135deg,#1e1b4b 0%,#4c1d95 60%,#6d28d9 100%)",
+  rose:     "linear-gradient(135deg,#f43f5e 0%,#ec4899 60%,#a855f7 100%)",
+  gold:     "linear-gradient(135deg,#f59e0b 0%,#ef4444 60%,#ec4899 100%)",
+  mint:     "linear-gradient(135deg,#34d399 0%,#06b6d4 60%,#3b82f6 100%)",
+};
+
+const FONTS: Record<string, string> = {
+  bricolage:  "var(--font-bricolage), system-ui, sans-serif",
+  playfair:   "'Playfair Display', Georgia, serif",
+  cormorant:  "'Cormorant Garamond', Georgia, serif",
+  montserrat: "'Montserrat', system-ui, sans-serif",
+  dancing:    "'Dancing Script', Georgia, cursive",
+};
+
+const FONT_URLS: Record<string, string> = {
+  playfair:   "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap",
+  cormorant:  "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap",
+  montserrat: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap",
+  dancing:    "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap",
+};
 
 type Going = "yes" | "no" | null;
 
@@ -44,6 +71,34 @@ function maskPhone(raw: string): string {
 
 // ── Main page ─────────────────────────────────────────────────────────────
 export default function ExemploConvitePage() {
+  return (
+    <Suspense>
+      <ExemploConviteContent />
+    </Suspense>
+  );
+}
+
+function ExemploConviteContent() {
+  const params = useSearchParams();
+  const fontId     = params.get("font") ?? "bricolage";
+  const gradient   = GRADIENTS[params.get("color") ?? ""] ?? GRADIENTS.violet;
+  const fontFamily = FONTS[fontId] ?? FONTS.bricolage;
+  const acompOn    = params.get("acomp") !== "0";
+  const trajeOn    = params.get("trajeOn") === "1";
+  const trajeText  = params.get("traje") ?? "";
+
+  useEffect(() => {
+    const url = FONT_URLS[fontId];
+    if (!url) return;
+    const id = `gfont-${fontId}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = url;
+    document.head.appendChild(link);
+  }, [fontId]);
+
   const [going, setGoing] = useState<Going>(null);
   const [plusOne, setPlusOne] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -87,7 +142,7 @@ export default function ExemploConvitePage() {
 
         {/* ── Invite card ── */}
         <div style={{ padding: "14px 14px 0" }}>
-          <div style={{ aspectRatio: "3/4", borderRadius: 18, overflow: "hidden", position: "relative", background: "linear-gradient(135deg, #ff4d8d 0%, #b14eff 60%, #7a3aff 100%)", boxShadow: "0 20px 40px rgba(177,78,255,.30)" }}>
+          <div style={{ aspectRatio: "3/4", borderRadius: 18, overflow: "hidden", position: "relative", background: gradient, boxShadow: "0 20px 40px rgba(177,78,255,.30)" }}>
             <div style={{ position: "absolute", width: 180, height: 180, borderRadius: 999, background: "#ffe5ee", filter: "blur(40px)", opacity: .4, top: -40, right: -40, pointerEvents: "none" }} />
             <div style={{ position: "absolute", width: 200, height: 200, borderRadius: 999, background: "#a78bfa", filter: "blur(50px)", opacity: .4, bottom: -60, left: -40, pointerEvents: "none" }} />
             <div style={{ position: "absolute", inset: 0, padding: 28, color: "#fff", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
@@ -97,7 +152,7 @@ export default function ExemploConvitePage() {
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: ".2em", textTransform: "uppercase", opacity: .8, marginBottom: 8 }}>Você foi convidado para os</div>
-                <div style={{ fontSize: 54, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: .95 }}>30 anos<br />da Marina</div>
+                <div style={{ fontSize: 54, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: .95, fontFamily }}>30 anos<br />da Marina</div>
                 <div style={{ marginTop: 14, fontSize: 13, opacity: .9, lineHeight: 1.45 }}>22 de junho · 21h<br />Casa Solar · Vila Madá</div>
               </div>
             </div>
@@ -111,7 +166,7 @@ export default function ExemploConvitePage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
             <DetailItem icon={<CalendarIcon />} title="Segunda, 22 de junho" subtitle="A partir das 21h" />
             <DetailItem icon={<PinIcon />} title="Casa de festas Solar" subtitle="Rua das Acácias, 220 — Vila Madá" />
-            <DetailItem icon={<UsersIcon />} title="80 convidados" subtitle="Traje esporte fino" />
+            {trajeOn && trajeText && <DetailItem icon={<ShirtIcon />} title={`Traje: ${trajeText}`} subtitle="Vista-se para a ocasião" />}
           </div>
           <div style={{ padding: 14, background: "#fff", borderRadius: 12, border: "1px solid #ece7f5", marginBottom: 24 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
@@ -171,18 +226,20 @@ export default function ExemploConvitePage() {
 
               {going === "yes" && (
                 <>
-                  <button
-                    onClick={() => setPlusOne(!plusOne)}
-                    style={{ display: "flex", alignItems: "center", gap: 10, padding: 14, background: "#faf7ff", borderRadius: 10, cursor: "pointer", border: "1px solid #ece7f5", textAlign: "left", fontFamily: "inherit", width: "100%" }}
-                  >
-                    <span style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, background: plusOne ? "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)" : "#fff", border: plusOne ? "none" : "1.5px solid #ece7f5", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
-                      {plusOne && <CheckSmallIcon />}
-                    </span>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>Vou levar +1 acompanhante</div>
-                      <div style={{ fontSize: 11, color: "#6e6880" }}>Marina permitiu acompanhantes</div>
-                    </div>
-                  </button>
+                  {acompOn && (
+                    <button
+                      onClick={() => setPlusOne(!plusOne)}
+                      style={{ display: "flex", alignItems: "center", gap: 10, padding: 14, background: "#faf7ff", borderRadius: 10, cursor: "pointer", border: "1px solid #ece7f5", textAlign: "left", fontFamily: "inherit", width: "100%" }}
+                    >
+                      <span style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, background: plusOne ? "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)" : "#fff", border: plusOne ? "none" : "1.5px solid #ece7f5", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                        {plusOne && <CheckSmallIcon />}
+                      </span>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>Vou levar +1 acompanhante</div>
+                        <div style={{ fontSize: 11, color: "#6e6880" }}>Marina permitiu acompanhantes</div>
+                      </div>
+                    </button>
+                  )}
 
                   <Field label="Restrição alimentar (opcional)">
                     <input
@@ -199,7 +256,7 @@ export default function ExemploConvitePage() {
 
             <button
               onClick={handleSubmit}
-              style={{ width: "100%", height: 48, borderRadius: 12, border: "none", fontSize: 15, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", boxShadow: "0 4px 14px rgba(177,78,255,.35)", marginTop: 18, transition: "opacity .15s, transform .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit" }}
+              style={{ width: "100%", height: 48, borderRadius: 12, border: "none", fontSize: 15, fontWeight: 500, color: "#fff", cursor: "pointer", background: gradient, boxShadow: "0 4px 14px rgba(177,78,255,.35)", marginTop: 18, transition: "opacity .15s, transform .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit" }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 22px rgba(177,78,255,.45)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 4px 14px rgba(177,78,255,.35)"; }}
             >
@@ -352,3 +409,4 @@ function PinIcon() { return <svg viewBox="0 0 16 16" width="15" height="15" fill
 function UsersIcon() { return <svg viewBox="0 0 16 16" width="15" height="15" fill="none"><circle cx="6" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5" /><path d="M2 13c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><circle cx="11" cy="5" r="1.9" stroke="currentColor" strokeWidth="1.5" /><path d="M10.5 9c2.2 0 3.8 1.5 3.8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>; }
 function CheckSmallIcon() { return <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>; }
 function ShareIcon() { return <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="12" cy="3.5" r="1.8" stroke="currentColor" strokeWidth="1.4" /><circle cx="4" cy="8" r="1.8" stroke="currentColor" strokeWidth="1.4" /><circle cx="12" cy="12.5" r="1.8" stroke="currentColor" strokeWidth="1.4" /><path d="M5.5 7l5-2.5M5.5 9l5 2.5" stroke="currentColor" strokeWidth="1.4" /></svg>; }
+function ShirtIcon() { return <svg viewBox="0 0 16 16" width="15" height="15" fill="none"><path d="M1 4l3-2 2 2h4l2-2 3 2-2 2v8H3V6L1 4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>; }
