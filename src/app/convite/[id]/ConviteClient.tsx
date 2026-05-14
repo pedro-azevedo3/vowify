@@ -145,16 +145,20 @@ function ConviteContent({ event, eventId }: { event: EventData; eventId: string 
     setTouched({ going: true, name: true, phone: true });
     if (Object.values(newErrors).some(Boolean)) return;
 
-    const { error } = await supabase.from("guests").upsert({
-      event_id:    eventId,
-      name:        form.name.trim(),
-      phone:       form.phone.replace(/\D/g, ""),
-      status:      going === "yes" ? "confirmed" : "declined",
-      plus:        going === "yes" && plusOne ? 1 : 0,
-      restriction: form.restriction.trim(),
-    }, { onConflict: "event_id,phone" });
+    const res = await fetch("/api/rsvp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_id:    eventId,
+        name:        form.name.trim(),
+        phone:       form.phone.replace(/\D/g, ""),
+        status:      going === "yes" ? "confirmed" : "declined",
+        plus:        going === "yes" && plusOne ? 1 : 0,
+        restriction: form.restriction.trim(),
+      }),
+    });
 
-    if (error) {
+    if (!res.ok) {
       setErrors({ going: "Erro ao enviar resposta. Tente novamente." });
       return;
     }
