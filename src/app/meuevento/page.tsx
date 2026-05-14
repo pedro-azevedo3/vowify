@@ -162,7 +162,7 @@ export default function MinhaFestaPage() {
 
   useEffect(() => {
     const loadEvents = async (userId: string) => {
-      const { data } = await supabase.from("events").select("*").order("created_at");
+      const { data } = await supabase.from("events").select("*").eq("user_id", userId).order("created_at");
       let firstId = "";
       if (!data || data.length === 0) {
         const { data: created } = await supabase
