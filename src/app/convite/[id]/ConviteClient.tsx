@@ -145,7 +145,7 @@ function ConviteContent({ event, eventId }: { event: EventData; eventId: string 
     setTouched({ going: true, name: true, phone: true });
     if (Object.values(newErrors).some(Boolean)) return;
 
-    await supabase.from("guests").upsert({
+    const { error } = await supabase.from("guests").upsert({
       event_id:    eventId,
       name:        form.name.trim(),
       phone:       form.phone.replace(/\D/g, ""),
@@ -153,6 +153,11 @@ function ConviteContent({ event, eventId }: { event: EventData; eventId: string 
       plus:        going === "yes" && plusOne ? 1 : 0,
       restriction: form.restriction.trim(),
     }, { onConflict: "event_id,phone" });
+
+    if (error) {
+      setErrors({ going: "Erro ao enviar resposta. Tente novamente." });
+      return;
+    }
 
     setSubmitted(true);
   }, [going, form, plusOne, eventId]);

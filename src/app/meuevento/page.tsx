@@ -223,7 +223,11 @@ export default function MinhaFestaPage() {
         });
       })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    // Fallback: recarrega convidados a cada 30s caso Realtime não dispare
+    const interval = setInterval(() => loadGuests(activeEventId), 30000);
+
+    return () => { supabase.removeChannel(channel); clearInterval(interval); };
   }, [activeEventId]);
 
   const ev = eventsData[activeEventId];
