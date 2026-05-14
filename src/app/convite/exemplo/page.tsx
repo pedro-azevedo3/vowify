@@ -3,6 +3,7 @@
 import { useState, useCallback, Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 const GRADIENTS: Record<string, string> = {
   violet:   "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)",
@@ -80,12 +81,21 @@ export default function ExemploConvitePage() {
 
 function ExemploConviteContent() {
   const params = useSearchParams();
-  const fontId     = params.get("font") ?? "bricolage";
-  const gradient   = GRADIENTS[params.get("color") ?? ""] ?? GRADIENTS.violet;
-  const fontFamily = FONTS[fontId] ?? FONTS.bricolage;
-  const acompOn    = params.get("acomp") !== "0";
-  const trajeOn    = params.get("trajeOn") === "1";
-  const trajeText  = params.get("traje") ?? "";
+  const fontId       = params.get("font") ?? "bricolage";
+  const gradient     = GRADIENTS[params.get("color") ?? ""] ?? GRADIENTS.violet;
+  const fontFamily   = FONTS[fontId] ?? FONTS.bricolage;
+  const acompOn      = params.get("acomp") !== "0";
+  const trajeOn      = params.get("trajeOn") === "1";
+  const trajeText    = params.get("traje") ?? "";
+  const eventName     = params.get("name")     ?? "30 anos da Marina";
+  const eventDate     = params.get("date")     ?? "22/06/2026";
+  const eventTime     = params.get("time")     ?? "21:00";
+  const eventLocation = params.get("location") ?? "Casa de festas Solar";
+  const eventAddress  = params.get("address")  ?? "Rua das Acácias, 220";
+  const msgOn         = params.get("msgOn")    === "1";
+  const msgText       = params.get("msg")      ?? "";
+  const restricaoOn   = params.get("restricao") !== "0";
+  const eventId       = params.get("eid")      ?? "";
 
   useEffect(() => {
     const url = FONT_URLS[fontId];
@@ -122,7 +132,7 @@ function ExemploConviteContent() {
     if (field === "phone") setErrors((e) => ({ ...e, phone: validatePhone(form.phone) }));
   }, [form]);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     const newErrors: FormErrors = {
       going: !going ? "Selecione se você vai ou não." : undefined,
       name: validateName(form.name),
@@ -131,10 +141,22 @@ function ExemploConviteContent() {
     setErrors(newErrors);
     setTouched({ going: true, name: true, phone: true });
     if (Object.values(newErrors).some(Boolean)) return;
-    setSubmitted(true);
-  }, [going, form]);
 
-  if (submitted) return <SuccessState going={going} plusOne={plusOne} onReset={() => { setSubmitted(false); setGoing(null); }} />;
+    if (eventId) {
+      await supabase.from("guests").upsert({
+        event_id: eventId,
+        name: form.name.trim(),
+        phone: form.phone.replace(/\D/g, ""),
+        status: going === "yes" ? "confirmed" : "declined",
+        plus: going === "yes" && plusOne ? 1 : 0,
+        restriction: form.restriction.trim(),
+      }, { onConflict: "event_id,phone" });
+    }
+
+    setSubmitted(true);
+  }, [going, form, plusOne, eventId]);
+
+  if (submitted) return <SuccessState going={going} plusOne={plusOne} onReset={() => { setSubmitted(false); setGoing(null); }} eventName={eventName} eventDate={eventDate} eventTime={eventTime} eventLocation={eventLocation} gradient={gradient} />;
 
   return (
     <div style={{ background: "#fbf8ff", minHeight: "100dvh", fontFamily: "var(--font-geist-sans), system-ui, sans-serif" }}>
@@ -148,12 +170,12 @@ function ExemploConviteContent() {
             <div style={{ position: "absolute", inset: 0, padding: 28, color: "#fff", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: ".2em", textTransform: "uppercase", padding: "5px 10px", borderRadius: 999, background: "rgba(255,255,255,.18)", backdropFilter: "blur(6px)" }}>RSVP</span>
-                <span style={{ fontSize: 11, opacity: .85 }}>vowify.app/i/marina-30</span>
+                <span style={{ fontSize: 11, opacity: .85 }}>vowify.app/i/{params.get("slug") ?? "..."}</span>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: ".2em", textTransform: "uppercase", opacity: .8, marginBottom: 8 }}>Você foi convidado para os</div>
-                <div style={{ fontSize: 54, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: .95, fontFamily }}>30 anos<br />da Marina</div>
-                <div style={{ marginTop: 14, fontSize: 13, opacity: .9, lineHeight: 1.45 }}>22 de junho · 21h<br />Casa Solar · Vila Madá</div>
+                <div style={{ fontSize: 54, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: .95, fontFamily }}>{eventName}</div>
+                <div style={{ marginTop: 14, fontSize: 13, opacity: .9, lineHeight: 1.45 }}>{eventDate} · {eventTime}<br />{eventLocation}</div>
               </div>
             </div>
           </div>
@@ -162,24 +184,26 @@ function ExemploConviteContent() {
         {/* ── Event details ── */}
         <div style={{ padding: "20px 24px 8px" }}>
           <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", color: "#b14eff", marginBottom: 8 }}>Você foi convidado</div>
-          <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 16px", lineHeight: 1.1, color: "#0f0b1e" }}>30 anos da Marina</h1>
+          <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 16px", lineHeight: 1.1, color: "#0f0b1e" }}>{eventName}</h1>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-            <DetailItem icon={<CalendarIcon />} title="Segunda, 22 de junho" subtitle="A partir das 21h" />
-            <DetailItem icon={<PinIcon />} title="Casa de festas Solar" subtitle="Rua das Acácias, 220 — Vila Madá" />
+            <DetailItem icon={<CalendarIcon />} title={`${eventDate} · ${eventTime}`} subtitle="Confirme sua presença" />
+            <DetailItem icon={<PinIcon />} title={eventLocation} subtitle={eventAddress} />
             {trajeOn && trajeText && <DetailItem icon={<ShirtIcon />} title={`Traje: ${trajeText}`} subtitle="Vista-se para a ocasião" />}
           </div>
-          <div style={{ padding: 14, background: "#fff", borderRadius: 12, border: "1px solid #ece7f5", marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-              <AvatarComp name="Marina Castro" />
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>Marina te chamou</div>
-                <div style={{ fontSize: 11, color: "#6e6880" }}>recado da anfitriã</div>
+          {msgOn && msgText && (
+            <div style={{ padding: 14, background: "#fff", borderRadius: 12, border: "1px solid #ece7f5", marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <AvatarComp name={eventName} />
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>Recado do organizador</div>
+                  <div style={{ fontSize: 11, color: "#6e6880" }}>mensagem especial</div>
+                </div>
               </div>
+              <p style={{ fontSize: 14, lineHeight: 1.5, color: "#2a2440", margin: 0 }}>
+                &ldquo;{msgText}&rdquo;
+              </p>
             </div>
-            <p style={{ fontSize: 14, lineHeight: 1.5, color: "#2a2440", margin: 0 }}>
-              &ldquo;Bora celebrar três décadas com a galera que importa. Quem é da casa, não pode faltar!&rdquo;
-            </p>
-          </div>
+          )}
         </div>
 
         {/* ── RSVP form ── */}
@@ -241,7 +265,7 @@ function ExemploConviteContent() {
                     </button>
                   )}
 
-                  <Field label="Restrição alimentar (opcional)">
+                  {restricaoOn && <Field label="Restrição alimentar (opcional)">
                     <input
                       style={inputStyle(false)}
                       placeholder="Vegetariana, sem glúten…"
@@ -249,7 +273,7 @@ function ExemploConviteContent() {
                       onChange={(e) => setField("restriction", e.target.value)}
                       autoComplete="off"
                     />
-                  </Field>
+                  </Field>}
                 </>
               )}
             </div>
@@ -282,25 +306,34 @@ function ExemploConviteContent() {
 }
 
 // ── Success state ─────────────────────────────────────────────────────────
-function SuccessState({ going, plusOne, onReset }: { going: Going; plusOne: boolean; onReset: () => void }) {
+function SuccessState({ going, plusOne, onReset, eventName, eventDate, eventTime, eventLocation, gradient }: {
+  going: Going; plusOne: boolean; onReset: () => void;
+  eventName: string; eventDate: string; eventTime: string; eventLocation: string; gradient: string;
+}) {
   return (
     <div style={{ background: "#fff", minHeight: "100dvh", fontFamily: "var(--font-geist-sans), system-ui, sans-serif", display: "flex", flexDirection: "column", padding: "60px 24px 40px", position: "relative", overflow: "hidden", maxWidth: 480, margin: "0 auto" }}>
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(circle at 50% 0%, #ffe5ee 0%, transparent 50%), radial-gradient(circle at 80% 100%, #e8dcff 0%, transparent 60%)", opacity: .7 }} />
       <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-        <div style={{ width: 88, height: 88, borderRadius: "50%", marginBottom: 24, background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 12px 30px rgba(177,78,255,.40)" }}>
+        <div style={{ width: 88, height: 88, borderRadius: "50%", marginBottom: 24, background: gradient, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 12px 30px rgba(177,78,255,.40)" }}>
           <svg viewBox="0 0 24 24" width="40" height="40" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </div>
         <h1 style={{ fontSize: 30, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 10px", color: "#0f0b1e" }}>
           {going === "no" ? "Resposta enviada!" : "Presença confirmada!"}
         </h1>
         <p style={{ fontSize: 15, color: "#6e6880", maxWidth: 280, lineHeight: 1.5, margin: "0 0 28px" }}>
-          {going === "yes" ? "A Marina já recebeu sua confirmação. Mal podemos esperar 🎉" : "A Marina foi avisada que você não vai poder ir. Que pena! 😔"}
+          {going === "yes"
+            ? `O organizador já recebeu sua confirmação. Mal podemos esperar 🎉`
+            : `O organizador foi avisado que você não vai poder ir. Que pena! 😔`}
         </p>
         <div style={{ width: "100%", background: "#fff", border: "1px solid #ece7f5", borderRadius: 18, padding: 18, textAlign: "left", marginBottom: 18, boxShadow: "0 1px 2px rgba(15,11,30,.04), 0 6px 24px rgba(15,11,30,.04)" }}>
-          <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", color: "#b14eff", marginBottom: 12 }}>30 anos da Marina</div>
-          <div style={{ display: "flex", gap: 0, marginBottom: 14 }}>
-            {[{ label: "Data", value: "22 jun · 21h" }, { label: "Local", value: "Casa Solar" }, ...(going === "yes" && plusOne ? [{ label: "Com", value: "+1" }] : [])].map((item, i, arr) => (
-              <div key={item.label} style={{ display: "flex", alignItems: "stretch", gap: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", color: "#b14eff", marginBottom: 12 }}>{eventName}</div>
+          <div style={{ display: "flex", gap: 0, marginBottom: 14, flexWrap: "wrap", rowGap: 10 }}>
+            {[
+              { label: "Data",  value: eventDate || "—" },
+              { label: "Hora",  value: eventTime || "—" },
+              ...(eventLocation ? [{ label: "Local", value: eventLocation }] : []),
+              ...(going === "yes" && plusOne ? [{ label: "Com", value: "+1" }] : []),
+            ].map((item, i, arr) => (
+              <div key={item.label} style={{ display: "flex", alignItems: "stretch" }}>
                 <div style={{ paddingRight: 16 }}>
                   <div style={{ fontSize: 11, color: "#6e6880" }}>{item.label}</div>
                   <div style={{ fontSize: 14, fontWeight: 500, color: "#0f0b1e" }}>{item.value}</div>
@@ -314,7 +347,7 @@ function SuccessState({ going, plusOne, onReset }: { going: Going; plusOne: bool
           </button>
         </div>
         {going !== "no" && (
-          <button style={{ width: "100%", height: 48, borderRadius: 12, border: "none", fontSize: 15, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", boxShadow: "0 4px 14px rgba(177,78,255,.35)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", marginBottom: 8 }}>
+          <button style={{ width: "100%", height: 48, borderRadius: 12, border: "none", fontSize: 15, fontWeight: 500, color: "#fff", cursor: "pointer", background: gradient, boxShadow: "0 4px 14px rgba(177,78,255,.35)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", marginBottom: 8 }}>
             <ShareIcon /> Compartilhar com quem vai
           </button>
         )}
@@ -325,7 +358,7 @@ function SuccessState({ going, plusOne, onReset }: { going: Going; plusOne: bool
       <div style={{ position: "relative", textAlign: "center", fontSize: 11, color: "#9994ac", display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}>
         enviado por
         <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 5, textDecoration: "none" }}>
-          <span style={{ width: 16, height: 16, borderRadius: 5, background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 9 }}>V</span>
+          <span style={{ width: 16, height: 16, borderRadius: 5, background: gradient, display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 9 }}>V</span>
           <span style={{ fontSize: 12, fontWeight: 600, color: "#0f0b1e", letterSpacing: "-0.01em" }}>Vowify</span>
         </Link>
       </div>

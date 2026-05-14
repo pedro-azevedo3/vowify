@@ -56,6 +56,7 @@ export function Hero() {
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 22px rgba(177,78,255,.45)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 4px 14px rgba(177,78,255,.35)"; }}
+                onClick={() => window.dispatchEvent(new CustomEvent("vowify:openRegister"))}
               >
                 Criar meu evento — R$ 19,90
               </button>

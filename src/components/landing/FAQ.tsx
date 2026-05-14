@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useInView } from "@/hooks/use-in-view";
 
 const faqs = [
+  { q: "O que é RSVP?", a: "RSVP vem do francês \"Répondez s'il vous plaît\" — ou seja, \"responda, por favor\". É o sistema pelo qual os convidados confirmam ou recusam a presença em um evento. Na Vowify, o RSVP é feito diretamente pelo link do convite: o convidado clica, responde em segundos e o organizador vê a confirmação em tempo real no painel." },
   { q: "Preciso ter um número de WhatsApp Business?", a: "Não. A Vowify gera um link único para o seu evento. Você copia esse link e envia pelo seu próprio WhatsApp — pessoal, Business ou qualquer outro — sem precisar de integração nem configuração especial." },
   { q: "E se meu convite for em PDF ou imagem?", a: "Sem problema. Faça o upload do arquivo (PDF, JPG ou PNG) e a Vowify o exibe direitinho na tela do convidado, com o formulário de confirmação logo abaixo. Não precisa recriar nada." },
   { q: "Os convidados precisam baixar algum aplicativo?", a: "Nada. O convidado recebe o link, clica, vê o convite no navegador e confirma a presença em menos de 10 segundos. Zero instalação, zero cadastro." },
