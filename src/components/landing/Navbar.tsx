@@ -239,23 +239,35 @@ function useAuthForm(mode: "login" | "register") {
   const [error,    setError]    = useState("");
   const [done,     setDone]     = useState(false);
 
+  const MESSAGES: Record<string, string> = {
+    "Invalid login credentials":      "E-mail ou senha incorretos.",
+    "Email not confirmed":            "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.",
+    "User already registered":        "Este e-mail já possui uma conta. Tente entrar.",
+    "Password should be at least 6 characters": "A senha deve ter no mínimo 6 caracteres.",
+  };
+
   const submit = async () => {
     setError("");
     if (mode === "register" && password !== confirm) {
       setError("As senhas não coincidem."); return;
     }
     setLoading(true);
-    if (mode === "register") {
-      const { error: e } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { full_name: name } },
-      });
-      if (e) { setError(e.message); setLoading(false); return; }
-      setDone(true);
-    } else {
-      const { error: e } = await supabase.auth.signInWithPassword({ email, password });
-      if (e) { setError(e.message); setLoading(false); return; }
-      router.push("/meuevento");
+    try {
+      if (mode === "register") {
+        const { error: e } = await supabase.auth.signUp({
+          email, password,
+          options: { data: { full_name: name } },
+        });
+        if (e) { setError(MESSAGES[e.message] ?? e.message); setLoading(false); return; }
+        setDone(true);
+      } else {
+        const { error: e } = await supabase.auth.signInWithPassword({ email, password });
+        if (e) { setError(MESSAGES[e.message] ?? e.message); setLoading(false); return; }
+        router.push("/meuevento");
+      }
+    } catch (err) {
+      setError("Erro inesperado. Tente novamente.");
+      console.error(err);
     }
     setLoading(false);
   };
