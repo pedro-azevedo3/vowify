@@ -34,9 +34,14 @@ export function Navbar() {
   // Open register dropdown from any CTA on the page
   useEffect(() => {
     const handler = () => {
-      setRegisterOpen(true);
-      setLoginOpen(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      if (window.innerWidth >= 768) {
+        setRegisterOpen(true);
+        setLoginOpen(false);
+      } else {
+        setMobileOpen(true);
+        setMobileForm("register");
+      }
     };
     window.addEventListener("vowify:openRegister", handler);
     return () => window.removeEventListener("vowify:openRegister", handler);
