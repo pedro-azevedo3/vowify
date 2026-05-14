@@ -184,6 +184,11 @@ export default function MinhaFestaPage() {
         });
         setEventsData(mapped);
         setSidebarEvents(sidebar);
+        // Preenche organizer_name em eventos que ainda estão vazios
+        const empty = data.filter(r => !r.organizer_name).map(r => r.id);
+        if (empty.length > 0) {
+          supabase.from("events").update({ organizer_name: userName }).in("id", empty);
+        }
         setActiveEventId(data[0].id);
         firstId = data[0].id;
       }
