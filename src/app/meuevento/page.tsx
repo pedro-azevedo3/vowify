@@ -1026,21 +1026,8 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
         {/* ── Link & QR Code ── */}
         {(() => {
           const origin = typeof window !== "undefined" ? window.location.origin : "https://vowify.netlify.app";
-          const params = new URLSearchParams({
-            color: colorId, font: fontId,
-            acomp: acompOn ? "1" : "0",
-            restricao: restricaoOn ? "1" : "0",
-            trajeOn: trajeOn ? "1" : "0",
-            traje: trajeText,
-            name: eventName,
-            date: eventInfo.date, time: eventInfo.time,
-            location: eventInfo.location, address: eventInfo.address,
-            msgOn: msgOn ? "1" : "0", msg: msgText,
-            slug: toSlug(eventName, event.id),
-            eid: event.id,
-          });
-          const inviteUrl = `${origin}/convite/exemplo?${params.toString()}`;
-          const shortDisplay = `${origin}/convite/exemplo`;
+          const inviteUrl = `${origin}/convite/${event.id}`;
+          const shortDisplay = inviteUrl;
 
           return (
             <Card>
@@ -1052,7 +1039,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <a
-                  href={inviteUrl}
+                  href={`/convite/${event.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 14px", borderRadius: 9, border: "none", fontSize: 13, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", textDecoration: "none", fontFamily: "inherit" }}
