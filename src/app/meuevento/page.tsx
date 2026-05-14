@@ -350,7 +350,7 @@ export default function MinhaFestaPage() {
         )}
 
         {view === "messages"  && <MessagesView />}
-        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} />}
+        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} organizerName={ev.organizerName} />}
       </main>
     </div>
   );
@@ -898,9 +898,9 @@ const FONT_OPTIONS = [
 ];
 
 // ── Settings View ──────────────────────────────────────────────────────────
-function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance }: {
+function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance, organizerName }: {
   event: { id: string; name: string; when: string }; guestLimit: number; setGuestLimit: (n: number) => void;
-  eventName: string; setEventName: (n: string) => void;
+  eventName: string; setEventName: (n: string) => void; organizerName: string;
   eventInfo: { date: string; time: string; location: string; address: string };
   setEventInfo: (v: { date: string; time: string; location: string; address: string }) => void;
   colorId: string; setColorId: (v: string) => void;
@@ -1065,7 +1065,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                   {copied ? "✓ Copiado!" : "Copiar"}
                 </button>
               </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
                 <a
                   href={`/convite/${event.id}`}
                   target="_blank"
@@ -1075,6 +1075,30 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                   <EyeIcon /> Visualizar seu convite
                 </a>
                 <GhostBtn icon={<DownloadIcon />} onClick={() => alert("Baixando QR Code…")}>Baixar QR Code</GhostBtn>
+              </div>
+
+              {/* Mensagem para WhatsApp */}
+              <div style={{ borderTop: "1px solid #ece7f5", paddingTop: 16 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "#6e6880", textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 8 }}>
+                  Mensagem para WhatsApp
+                </label>
+                {(() => {
+                  const whatsappMsg = `${organizerName ? `${organizerName} está te convidando para ${eventName}` : `Você foi convidado para ${eventName}`}! 🎉\n\nConfirme sua presença em menos de 10 segundos:\n${inviteUrl}`;
+                  const [copiedMsg, setCopiedMsg] = React.useState(false);
+                  return (
+                    <>
+                      <div style={{ background: "#faf7ff", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#2a2440", lineHeight: 1.6, whiteSpace: "pre-wrap", border: "1px solid #ece7f5", marginBottom: 8 }}>
+                        {whatsappMsg}
+                      </div>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(whatsappMsg); setCopiedMsg(true); setTimeout(() => setCopiedMsg(false), 2000); }}
+                        style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${copiedMsg ? "rgba(22,163,74,.3)" : "#ece7f5"}`, fontSize: 12, fontWeight: 500, background: copiedMsg ? "#e6f7ee" : "#fff", cursor: "pointer", fontFamily: "inherit", color: copiedMsg ? "#0f6b32" : "#2a2440", transition: "all .2s" }}
+                      >
+                        {copiedMsg ? "✓ Mensagem copiada!" : "Copiar mensagem"}
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
             </Card>
           );

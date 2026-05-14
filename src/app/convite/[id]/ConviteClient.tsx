@@ -197,7 +197,9 @@ function ConviteContent({ event, eventId }: { event: EventData; eventId: string 
 
         {/* Event details */}
         <div style={{ padding: "20px 24px 8px" }}>
-          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", color: "#b14eff", marginBottom: 8 }}>Você foi convidado</div>
+          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", color: "#b14eff", marginBottom: 8 }}>
+            {event.organizer_name ? `${event.organizer_name} está te convidando` : "Você foi convidado"}
+          </div>
           <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 16px", lineHeight: 1.1, color: "#0f0b1e" }}>{event.name}</h1>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
             <DetailItem icon={<CalendarIcon />} title={`${event.date}${event.time ? ` · ${event.time}` : ""}`} subtitle="Confirme sua presença" />
