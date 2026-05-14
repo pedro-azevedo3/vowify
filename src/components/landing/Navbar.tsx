@@ -22,8 +22,9 @@ export function Navbar() {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [mobileForm, setMobileForm] = useState<"login" | "register" | null>(null);
 
-  const loginRef = useRef<HTMLDivElement>(null);
+  const loginRef    = useRef<HTMLDivElement>(null);
   const registerRef = useRef<HTMLDivElement>(null);
+  const navRef      = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 24);
@@ -47,18 +48,27 @@ export function Navbar() {
     return () => window.removeEventListener("vowify:openRegister", handler);
   }, []);
 
-  // Close both dropdowns on outside click or Escape
+  // Close dropdowns/menu on outside click or Escape
   useEffect(() => {
-    if (!loginOpen && !registerOpen) return;
+    if (!loginOpen && !registerOpen && !mobileOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setLoginOpen(false); setRegisterOpen(false); }
+      if (e.key === "Escape") {
+        setLoginOpen(false); setRegisterOpen(false);
+        setMobileOpen(false); setMobileForm(null);
+      }
     };
     const onDown = (e: MouseEvent) => {
-      const outside = (ref: React.RefObject<HTMLDivElement | null>) =>
-        ref.current && !ref.current.contains(e.target as Node);
-      if (outside(loginRef) && outside(registerRef)) {
+      const target = e.target as Node;
+      const outsideNav = navRef.current && !navRef.current.contains(target);
+      const outsideLogin = loginRef.current && !loginRef.current.contains(target);
+      const outsideRegister = registerRef.current && !registerRef.current.contains(target);
+      if (outsideLogin && outsideRegister) {
         setLoginOpen(false);
         setRegisterOpen(false);
+      }
+      if (outsideNav) {
+        setMobileOpen(false);
+        setMobileForm(null);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -67,10 +77,10 @@ export function Navbar() {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("mousedown", onDown);
     };
-  }, [loginOpen, registerOpen]);
+  }, [loginOpen, registerOpen, mobileOpen]);
 
   return (
-    <header
+    <header ref={navRef}
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled
