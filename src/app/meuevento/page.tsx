@@ -1086,18 +1086,29 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                 </label>
                 {(() => {
                   const whatsappMsg = `${organizerName ? `${organizerName} está te convidando para ${eventName}` : `Você foi convidado para ${eventName}`}! 🎉\n\nConfirme sua presença em menos de 10 segundos:\n${inviteUrl}`;
-                  const [copiedMsg, setCopiedMsg] = React.useState(false);
+                  const waLink = `https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`;
+                  const [copiedMsg,  setCopiedMsg]  = React.useState(false);
+                  const [copiedLink, setCopiedLink] = React.useState(false);
                   return (
                     <>
                       <div style={{ background: "#faf7ff", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#2a2440", lineHeight: 1.6, whiteSpace: "pre-wrap", border: "1px solid #ece7f5", marginBottom: 8 }}>
                         {whatsappMsg}
                       </div>
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(whatsappMsg); setCopiedMsg(true); setTimeout(() => setCopiedMsg(false), 2000); }}
-                        style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${copiedMsg ? "rgba(22,163,74,.3)" : "#ece7f5"}`, fontSize: 12, fontWeight: 500, background: copiedMsg ? "#e6f7ee" : "#fff", cursor: "pointer", fontFamily: "inherit", color: copiedMsg ? "#0f6b32" : "#2a2440", transition: "all .2s" }}
-                      >
-                        {copiedMsg ? "✓ Mensagem copiada!" : "Copiar mensagem"}
-                      </button>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(whatsappMsg); setCopiedMsg(true); setTimeout(() => setCopiedMsg(false), 2000); }}
+                          style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${copiedMsg ? "rgba(22,163,74,.3)" : "#ece7f5"}`, fontSize: 12, fontWeight: 500, background: copiedMsg ? "#e6f7ee" : "#fff", cursor: "pointer", fontFamily: "inherit", color: copiedMsg ? "#0f6b32" : "#2a2440", transition: "all .2s" }}
+                        >
+                          {copiedMsg ? "✓ Mensagem copiada!" : "Copiar mensagem"}
+                        </button>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(waLink); setCopiedLink(true); setTimeout(() => setCopiedLink(false), 2000); }}
+                          style={{ padding: "7px 14px", borderRadius: 8, border: "none", fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", transition: "all .2s", background: copiedLink ? "#1da851" : "#25D366", color: "#fff", display: "flex", alignItems: "center", gap: 6 }}
+                        >
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.375 0 0 5.373 0 11.987c0 2.11.554 4.093 1.523 5.815L0 24l6.335-1.489A11.953 11.953 0 0011.99 24C18.605 24 24 18.627 24 12.013 24 5.373 18.605 0 11.99 0zm.01 21.785a9.783 9.783 0 01-4.999-1.37l-.358-.213-3.759.884.899-3.653-.234-.376a9.77 9.77 0 01-1.499-5.247c0-5.404 4.397-9.8 9.8-9.8 2.618 0 5.078 1.021 6.927 2.873a9.745 9.745 0 012.872 6.924c.001 5.405-4.396 9.978-9.649 9.978z"/></svg>
+                          {copiedLink ? "✓ Link copiado!" : "Copiar link de WhatsApp"}
+                        </button>
+                      </div>
                     </>
                   );
                 })()}
