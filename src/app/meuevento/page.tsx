@@ -163,12 +163,12 @@ export default function MinhaFestaPage() {
   };
 
   useEffect(() => {
-    const loadEvents = async (userId: string) => {
+    const loadEvents = async (userId: string, displayName: string) => {
       const { data } = await supabase.from("events").select("*").eq("user_id", userId).order("created_at");
       let firstId = "";
       if (!data || data.length === 0) {
         const { data: created } = await supabase
-          .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: userName }).select().single();
+          .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName }).select().single();
         if (created) {
           setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
           setSidebarEvents([{ id: created.id, name: created.name, when: `${created.date} · ${created.time}` }]);
@@ -179,15 +179,16 @@ export default function MinhaFestaPage() {
         const mapped: Record<string, PerEventState> = {};
         const sidebar: SidebarEvent[] = [];
         data.forEach(row => {
-          mapped[row.id] = { ...mapFromDb(row), guests: [] };
+          // Se o evento não tem organizer_name, injeta o nome localmente e atualiza no banco
+          const orgName = row.organizer_name || displayName;
+          mapped[row.id] = { ...mapFromDb(row), organizerName: orgName, guests: [] };
           sidebar.push({ id: row.id, name: row.name, when: `${row.date} · ${row.time}` });
         });
         setEventsData(mapped);
         setSidebarEvents(sidebar);
-        // Preenche organizer_name em eventos que ainda estão vazios
         const empty = data.filter(r => !r.organizer_name).map(r => r.id);
         if (empty.length > 0) {
-          supabase.from("events").update({ organizer_name: userName }).in("id", empty);
+          supabase.from("events").update({ organizer_name: displayName }).in("id", empty);
         }
         setActiveEventId(data[0].id);
         firstId = data[0].id;
@@ -198,9 +199,10 @@ export default function MinhaFestaPage() {
 
     const setFromSession = (session: { user: { id: string; email?: string; user_metadata?: { full_name?: string } } } | null) => {
       if (!session) { window.location.href = "/"; return; }
+      const displayName = session.user.user_metadata?.full_name ?? session.user.email ?? "";
       setUserEmail(session.user.email ?? "");
-      setUserName(session.user.user_metadata?.full_name ?? session.user.email ?? "");
-      loadEvents(session.user.id);
+      setUserName(displayName);
+      loadEvents(session.user.id, displayName);
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => setFromSession(session));
