@@ -41,6 +41,7 @@ type EventData = {
   name: string; date: string; time: string; location: string; address: string;
   traje_on: boolean; traje_text: string; acomp_on: boolean; restricao_on: boolean;
   msg_on: boolean; msg_text: string; color_id: string; font_id: string;
+  organizer_name: string;
 };
 
 // ── Validation ────────────────────────────────────────────────────────────
@@ -75,7 +76,7 @@ export default function ConvitePage() {
     if (!id) return;
     supabase
       .from("events")
-      .select("name,date,time,location,address,traje_on,traje_text,acomp_on,restricao_on,msg_on,msg_text,color_id,font_id")
+      .select("name,date,time,location,address,traje_on,traje_text,acomp_on,restricao_on,msg_on,msg_text,color_id,font_id,organizer_name")
       .eq("id", id)
       .single()
       .then(({ data, error }) => {
@@ -200,10 +201,10 @@ function ConviteContent({ event, eventId }: { event: EventData; eventId: string 
           {event.msg_on && event.msg_text && (
             <div style={{ padding: 14, background: "#fff", borderRadius: 12, border: "1px solid #ece7f5", marginBottom: 24 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <AvatarComp name={event.name} />
+                <AvatarComp name={event.organizer_name || event.name} />
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>Recado do organizador</div>
-                  <div style={{ fontSize: 11, color: "#6e6880" }}>mensagem especial</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>{event.organizer_name || "Organizador"}</div>
+                  <div style={{ fontSize: 11, color: "#6e6880" }}>recado especial</div>
                 </div>
               </div>
               <p style={{ fontSize: 14, lineHeight: 1.5, color: "#2a2440", margin: 0 }}>

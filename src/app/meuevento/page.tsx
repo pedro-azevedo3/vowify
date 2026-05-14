@@ -24,6 +24,7 @@ type PerEventState = {
   trajeOn: boolean; trajeText: string;
   acompOn: boolean; restricaoOn: boolean; msgOn: boolean; msgText: string;
   colorId: string; fontId: string;
+  organizerName: string;
 };
 
 // ── Data ──────────────────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ const INITIAL_EVENTS_DATA: Record<number, PerEventState> = {
     guestLimit: 80, guests: ALL_GUESTS,
     trajeOn: true, trajeText: "Esporte fino",
     acompOn: true, restricaoOn: true, msgOn: false, msgText: "",
-    colorId: "violet", fontId: "bricolage",
+    colorId: "violet", fontId: "bricolage", organizerName: "",
   },
   2: {
     name: "Casamento J&L", date: "12/09/2026", time: "17:00",
@@ -68,7 +69,7 @@ const INITIAL_EVENTS_DATA: Record<number, PerEventState> = {
     ],
     trajeOn: true, trajeText: "Social",
     acompOn: true, restricaoOn: true, msgOn: false, msgText: "",
-    colorId: "rose", fontId: "playfair",
+    colorId: "rose", fontId: "playfair", organizerName: "",
   },
   3: {
     name: "Confra Velkro", date: "14/12/2026", time: "19:00",
@@ -81,7 +82,7 @@ const INITIAL_EVENTS_DATA: Record<number, PerEventState> = {
     ],
     trajeOn: false, trajeText: "",
     acompOn: false, restricaoOn: false, msgOn: false, msgText: "",
-    colorId: "ocean", fontId: "bricolage",
+    colorId: "ocean", fontId: "bricolage", organizerName: "",
   },
 };
 
@@ -121,12 +122,13 @@ const mapFromDb = (row: any): PerEventState => ({
   trajeOn: row.traje_on, trajeText: row.traje_text,
   acompOn: row.acomp_on, restricaoOn: row.restricao_on ?? true, msgOn: row.msg_on, msgText: row.msg_text,
   colorId: row.color_id, fontId: row.font_id,
+  organizerName: row.organizer_name ?? "",
 });
 
 const DEFAULT_EVENT = {
   name: "Meu primeiro evento", date: "", time: "", location: "", address: "",
   guest_limit: 50, traje_on: false, traje_text: "", acomp_on: true, restricao_on: true,
-  msg_on: false, msg_text: "", color_id: "violet", font_id: "bricolage",
+  msg_on: false, msg_text: "", color_id: "violet", font_id: "bricolage", organizer_name: "",
 };
 
 // ── Page ──────────────────────────────────────────────────────────────────
@@ -166,7 +168,7 @@ export default function MinhaFestaPage() {
       let firstId = "";
       if (!data || data.length === 0) {
         const { data: created } = await supabase
-          .from("events").insert({ ...DEFAULT_EVENT, user_id: userId }).select().single();
+          .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: userName }).select().single();
         if (created) {
           setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
           setSidebarEvents([{ id: created.id, name: created.name, when: `${created.date} · ${created.time}` }]);
@@ -334,7 +336,7 @@ export default function MinhaFestaPage() {
             filter={filter} setFilter={setFilter}
             query={query} setQuery={setQuery}
             filtered={filtered} guests={guests} guestLimit={guestLimit}
-            onDelete={deleteGuest} eventName={eventName} eventInfo={eventInfo}
+            onDelete={deleteGuest} eventName={eventName} eventInfo={eventInfo} organizerName={ev.organizerName}
           />
         )}
 
@@ -519,13 +521,13 @@ function Sidebar({ view, setView, activeEventId, setActiveEventId, navItems, eve
 }
 
 // ── Dashboard View ─────────────────────────────────────────────────────────
-function DashboardView({ event, counts, total, confirmedCount, companions, respondedPct, filter, setFilter, query, setQuery, filtered, guests, guestLimit, onDelete, eventName, eventInfo }: {
+function DashboardView({ event, counts, total, confirmedCount, companions, respondedPct, filter, setFilter, query, setQuery, filtered, guests, guestLimit, onDelete, eventName, eventInfo, organizerName }: {
   event: { id: string; name: string; when: string }; counts: Record<string,number>; total: number;
   confirmedCount: number; companions: number; respondedPct: number;
   filter: string; setFilter: (f: string) => void;
   query: string; setQuery: (q: string) => void;
   filtered: Guest[]; guests: Guest[]; guestLimit: number; onDelete: (name: string) => void; eventName: string;
-  eventInfo: { date: string; time: string; location: string; address: string };
+  eventInfo: { date: string; time: string; location: string; address: string }; organizerName: string;
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0, width: "100%" }}>
@@ -541,7 +543,16 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
           <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.025em", color: "#0f0b1e", margin: 0 }}>{eventName}</h1>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          <GhostBtn icon={<ShareIcon />} onClick={() => alert("Link copiado!")}>Compartilhar</GhostBtn>
+          <GhostBtn icon={<ShareIcon />} onClick={() => {
+            const origin = typeof window !== "undefined" ? window.location.origin : "";
+            const url  = `${origin}/convite/${event.id}`;
+            const text = `${organizerName || "Alguém"} está te convidando para ${eventName}! Confirme sua presença 🎉`;
+            if (typeof navigator !== "undefined" && navigator.share) {
+              navigator.share({ title: eventName, text, url });
+            } else {
+              navigator.clipboard.writeText(`${text}\n${url}`);
+            }
+          }}>Compartilhar</GhostBtn>
           <GhostBtn icon={<DownloadIcon />} onClick={() => alert("Exportando CSV...")}>Exportar CSV</GhostBtn>
         </div>
       </div>
