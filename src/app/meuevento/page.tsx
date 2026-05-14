@@ -1024,25 +1024,46 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
         <EventInfoCard event={event} onSaved={saveInfo} saved={savedInfo} guestLimit={guestLimit} setGuestLimit={setGuestLimit} trajeOn={trajeOn} setTrajeOn={setTrajeOn} acompOn={acompOn} setAcompOn={setAcompOn} restricaoOn={restricaoOn} setRestricaoOn={setRestricaoOn} trajeText={trajeText} setTrajeText={setTrajeText} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} msgOn={msgOn} setMsgOn={setMsgOn} msgText={msgText} setMsgText={setMsgText} />
 
         {/* ── Link & QR Code ── */}
-        <Card>
-          <SectionTitle>Link e QR Code</SectionTitle>
-          <p style={{ fontSize: 14, color: "#6e6880", margin: "8px 0 16px" }}>Compartilhe o link do convite com os convidados.</p>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", padding: 12, background: "#faf7ff", borderRadius: 10, border: "1px solid #ece7f5", marginBottom: 12, maxWidth: 400 }}>
-            <span style={{ fontSize: 13, color: "#2a2440", flex: 1, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>vowify.app/i/{toSlug(eventName, event.id)}</span>
-            <button onClick={() => navigator.clipboard.writeText(`vowify.app/i/${toSlug(eventName, event.id)}`)} style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid #ece7f5", fontSize: 12, fontWeight: 500, background: "#fff", cursor: "pointer", fontFamily: "inherit", color: "#2a2440", flexShrink: 0 }}>Copiar</button>
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <a
-              href={`/convite/exemplo?color=${colorId}&font=${fontId}&acomp=${acompOn ? "1" : "0"}&restricao=${restricaoOn ? "1" : "0"}&trajeOn=${trajeOn ? "1" : "0"}&traje=${encodeURIComponent(trajeText)}&name=${encodeURIComponent(eventName)}&date=${encodeURIComponent(eventInfo.date)}&time=${encodeURIComponent(eventInfo.time)}&location=${encodeURIComponent(eventInfo.location)}&address=${encodeURIComponent(eventInfo.address)}&msgOn=${msgOn ? "1" : "0"}&msg=${encodeURIComponent(msgText)}&slug=${encodeURIComponent(toSlug(eventName, event.id))}&eid=${event.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 14px", borderRadius: 9, border: "none", fontSize: 13, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", textDecoration: "none", fontFamily: "inherit" }}
-            >
-              <EyeIcon /> Visualizar seu convite
-            </a>
-            <GhostBtn icon={<DownloadIcon />} onClick={() => alert("Baixando QR Code…")}>Baixar QR Code</GhostBtn>
-          </div>
-        </Card>
+        {(() => {
+          const origin = typeof window !== "undefined" ? window.location.origin : "https://vowify.netlify.app";
+          const params = new URLSearchParams({
+            color: colorId, font: fontId,
+            acomp: acompOn ? "1" : "0",
+            restricao: restricaoOn ? "1" : "0",
+            trajeOn: trajeOn ? "1" : "0",
+            traje: trajeText,
+            name: eventName,
+            date: eventInfo.date, time: eventInfo.time,
+            location: eventInfo.location, address: eventInfo.address,
+            msgOn: msgOn ? "1" : "0", msg: msgText,
+            slug: toSlug(eventName, event.id),
+            eid: event.id,
+          });
+          const inviteUrl = `${origin}/convite/exemplo?${params.toString()}`;
+          const shortDisplay = `${origin}/convite/exemplo`;
+
+          return (
+            <Card>
+              <SectionTitle>Link e QR Code</SectionTitle>
+              <p style={{ fontSize: 14, color: "#6e6880", margin: "8px 0 16px" }}>Compartilhe o link do convite com os convidados.</p>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", padding: 12, background: "#faf7ff", borderRadius: 10, border: "1px solid #ece7f5", marginBottom: 12, maxWidth: 500 }}>
+                <span style={{ fontSize: 13, color: "#2a2440", flex: 1, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{shortDisplay}</span>
+                <button onClick={() => navigator.clipboard.writeText(inviteUrl)} style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid #ece7f5", fontSize: 12, fontWeight: 500, background: "#fff", cursor: "pointer", fontFamily: "inherit", color: "#2a2440", flexShrink: 0 }}>Copiar</button>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <a
+                  href={inviteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 14px", borderRadius: 9, border: "none", fontSize: 13, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", textDecoration: "none", fontFamily: "inherit" }}
+                >
+                  <EyeIcon /> Visualizar seu convite
+                </a>
+                <GhostBtn icon={<DownloadIcon />} onClick={() => alert("Baixando QR Code…")}>Baixar QR Code</GhostBtn>
+              </div>
+            </Card>
+          );
+        })()}
 
         {/* ── Zona de perigo ── */}
         <Card>
