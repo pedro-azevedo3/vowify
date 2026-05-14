@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Donut, Avatar } from "@/components/landing/shared";
@@ -1039,6 +1039,12 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
           const origin = typeof window !== "undefined" ? window.location.origin : "https://vowify.netlify.app";
           const inviteUrl = `${origin}/convite/${event.id}`;
           const shortDisplay = inviteUrl;
+          const [copied, setCopied] = React.useState(false);
+          const handleCopy = () => {
+            navigator.clipboard.writeText(inviteUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          };
 
           return (
             <Card>
@@ -1046,7 +1052,9 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
               <p style={{ fontSize: 14, color: "#6e6880", margin: "8px 0 16px" }}>Compartilhe o link do convite com os convidados.</p>
               <div style={{ display: "flex", gap: 8, alignItems: "center", padding: 12, background: "#faf7ff", borderRadius: 10, border: "1px solid #ece7f5", marginBottom: 12, maxWidth: 500 }}>
                 <span style={{ fontSize: 13, color: "#2a2440", flex: 1, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{shortDisplay}</span>
-                <button onClick={() => navigator.clipboard.writeText(inviteUrl)} style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid #ece7f5", fontSize: 12, fontWeight: 500, background: "#fff", cursor: "pointer", fontFamily: "inherit", color: "#2a2440", flexShrink: 0 }}>Copiar</button>
+                <button onClick={handleCopy} style={{ padding: "6px 12px", borderRadius: 8, border: `1px solid ${copied ? "rgba(22,163,74,.3)" : "#ece7f5"}`, fontSize: 12, fontWeight: 500, background: copied ? "#e6f7ee" : "#fff", cursor: "pointer", fontFamily: "inherit", color: copied ? "#0f6b32" : "#2a2440", flexShrink: 0, transition: "all .2s" }}>
+                  {copied ? "✓ Copiado!" : "Copiar"}
+                </button>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <a
