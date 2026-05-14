@@ -544,7 +544,7 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           <GhostBtn icon={<ShareIcon />} onClick={() => {
-            const origin = typeof window !== "undefined" ? window.location.origin : "";
+            const origin = process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
             const url  = `${origin}/convite/${event.id}`;
             const text = `${organizerName || "Alguém"} está te convidando para ${eventName}! Confirme sua presença 🎉`;
             if (typeof navigator !== "undefined" && navigator.share) {
@@ -1036,7 +1036,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
 
         {/* ── Link & QR Code ── */}
         {(() => {
-          const origin = typeof window !== "undefined" ? window.location.origin : "https://vowify.netlify.app";
+          const origin = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== "undefined" ? window.location.origin : ""));
           const inviteUrl = `${origin}/convite/${event.id}`;
           const shortDisplay = inviteUrl;
           const [copied, setCopied] = React.useState(false);
