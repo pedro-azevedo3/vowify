@@ -14,15 +14,19 @@ export function Footer() {
       </div>
 
       <div className="flex gap-5" style={{ fontSize: 13, color: "#6e6880" }}>
-        {["Termos", "Privacidade", "Contato"].map((l) => (
+        {[
+          { label: "Termos",      href: "/termos" },
+          { label: "Privacidade", href: "/privacidade" },
+          { label: "Contato",     href: "mailto:contato@vowify.app" },
+        ].map(({ label, href }) => (
           <a
-            key={l}
-            href="#"
+            key={label}
+            href={href}
             style={{ color: "#6e6880", textDecoration: "none", cursor: "pointer" }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#0f0b1e")}
             onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#6e6880")}
           >
-            {l}
+            {label}
           </a>
         ))}
       </div>
