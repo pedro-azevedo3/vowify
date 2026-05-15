@@ -155,10 +155,10 @@ export default function MinhaFestaPage() {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [userName,      setUserName]      = useState("");
   const [userEmail,     setUserEmail]     = useState("");
-  const [dark, setDark] = useState<boolean>(() => {
-    if (typeof window !== "undefined") return localStorage.getItem("vw-dark") === "1";
-    return false;
-  });
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    if (localStorage.getItem("vw-dark") === "1") setDark(true);
+  }, []);
   const toggleDark = () => setDark(d => {
     const next = !d;
     localStorage.setItem("vw-dark", next ? "1" : "0");
