@@ -352,7 +352,7 @@ export default function MinhaFestaPage() {
         )}
 
         {view === "messages"  && <MessagesView />}
-        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} organizerName={ev.organizerName} />}
+        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} organizerName={ev.organizerName} userName={userName} />}
       </main>
     </div>
   );
@@ -894,9 +894,9 @@ const FONT_OPTIONS = [
 ];
 
 // ── Settings View ──────────────────────────────────────────────────────────
-function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance, organizerName }: {
+function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance, organizerName, userName }: {
   event: { id: string; name: string; when: string }; guestLimit: number; setGuestLimit: (n: number) => void;
-  eventName: string; setEventName: (n: string) => void; organizerName: string;
+  eventName: string; setEventName: (n: string) => void; organizerName: string; userName: string;
   eventInfo: { date: string; time: string; location: string; address: string };
   setEventInfo: (v: { date: string; time: string; location: string; address: string }) => void;
   colorId: string; setColorId: (v: string) => void;
@@ -911,6 +911,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   onPersistAppearance: (colorId: string, fontId: string) => Promise<void>;
 }) {
   const [saved,         setSaved]         = useState(false);
+  const [showDelete,    setShowDelete]    = useState(false);
   const [showAllThemes, setShowAllThemes] = useState(false);
   const [showAllFonts,  setShowAllFonts]  = useState(false);
   const [draftName,     setDraftName]     = useState(eventName);
@@ -1136,13 +1137,24 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
           <SectionTitle style={{ color: "#e1124e" }}>Zona de perigo</SectionTitle>
           <p style={{ fontSize: 14, color: "#6e6880", margin: "8px 0 16px" }}>Ações irreversíveis para este evento.</p>
           <button
-            onClick={() => { if (confirm("Tem certeza? Esta ação não pode ser desfeita.")) alert("Evento encerrado."); }}
+            onClick={() => setShowDelete(true)}
             style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(225,17,78,.25)", fontSize: 14, fontWeight: 500, color: "#e1124e", background: "#fde7ee", cursor: "pointer", fontFamily: "inherit" }}
           >
             Encerrar evento
           </button>
         </Card>
       </div>
+
+      {/* ── Modal de confirmação de exclusão ── */}
+      {showDelete && (
+        <DeleteEventModal
+          eventName={eventName}
+          eventId={event.id}
+          organizerName={organizerName}
+          userName={userName}
+          onClose={() => setShowDelete(false)}
+        />
+      )}
     </>
   );
 }
@@ -1402,6 +1414,92 @@ function EventInfoCard({ event, guestLimit, trajeOn, setTrajeOn, acompOn, setAco
           )}
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+// ── Delete event modal ────────────────────────────────────────────────────
+function DeleteEventModal({ eventName, eventId, organizerName, userName, onClose }: {
+  eventName: string; eventId: string; organizerName: string; userName: string; onClose: () => void;
+}) {
+  const [input,   setInput]   = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState("");
+  const match = input.trim() === eventName.trim();
+
+  const handleDelete = async () => {
+    if (!match) return;
+    setLoading(true);
+    try {
+      await supabase.from("guests").delete().eq("event_id", eventId);
+      await supabase.from("events").delete().eq("id", eventId);
+      const { data: session } = await supabase.auth.getSession();
+      const userId = session.session?.user?.id;
+      if (userId) {
+        await supabase.from("events").insert({
+          ...DEFAULT_EVENT,
+          user_id: userId,
+          organizer_name: organizerName || userName,
+        });
+      }
+      window.location.reload();
+    } catch {
+      setError("Erro ao excluir o evento. Tente novamente.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* Backdrop */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(15,11,30,.5)", backdropFilter: "blur(4px)" }} />
+
+      {/* Modal */}
+      <div style={{ position: "relative", background: "#fff", borderRadius: 20, padding: 32, maxWidth: 440, width: "100%", boxShadow: "0 24px 64px rgba(15,11,30,.2)" }}>
+        {/* Icon */}
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: "#fde7ee", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#e1124e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f0b1e", margin: "0 0 8px", letterSpacing: "-0.02em" }}>
+          Encerrar evento?
+        </h2>
+        <p style={{ fontSize: 14, color: "#6e6880", margin: "0 0 20px", lineHeight: 1.6 }}>
+          Esta ação é <strong style={{ color: "#0f0b1e" }}>irreversível</strong>. Todos os dados do evento e a lista de convidados serão excluídos permanentemente. Um novo evento em branco será criado para você.
+        </p>
+
+        <div style={{ background: "#fde7ee", borderRadius: 10, padding: "10px 14px", marginBottom: 20, fontSize: 13, color: "#9a0a37" }}>
+          Para confirmar, digite o nome do evento exatamente como está: <strong>{eventName}</strong>
+        </div>
+
+        <input
+          value={input}
+          onChange={e => { setInput(e.target.value); setError(""); }}
+          placeholder={eventName}
+          style={{ width: "100%", height: 44, padding: "0 14px", borderRadius: 10, border: `1.5px solid ${match && input ? "#e1124e" : "#ece7f5"}`, fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", color: "#0f0b1e", marginBottom: error ? 8 : 16, background: match && input ? "#fff5f7" : "#fff" }}
+        />
+        {error && <p style={{ fontSize: 12, color: "#e1124e", margin: "0 0 12px" }}>{error}</p>}
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            onClick={onClose}
+            style={{ flex: 1, height: 44, borderRadius: 10, border: "1px solid #ece7f5", fontSize: 14, fontWeight: 500, color: "#6e6880", background: "#fff", cursor: "pointer", fontFamily: "inherit" }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={!match || loading}
+            style={{ flex: 1, height: 44, borderRadius: 10, border: "none", fontSize: 14, fontWeight: 600, color: "#fff", background: match ? "#e1124e" : "#f9a8a8", cursor: match ? "pointer" : "not-allowed", fontFamily: "inherit", transition: "background .15s" }}
+          >
+            {loading ? "Excluindo…" : "Confirmar exclusão"}
+          </button>
+        </div>
       </div>
     </div>
   );
