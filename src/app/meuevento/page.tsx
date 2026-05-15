@@ -553,19 +553,6 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.025em", color: "#0f0b1e", margin: 0 }}>{eventName}</h1>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          <GhostBtn icon={<ShareIcon />} onClick={() => {
-            const origin = process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
-            const url  = `${origin}/convite/${event.id}`;
-            const text = `${organizerName || "Alguém"} está te convidando para ${eventName}! Confirme sua presença 🎉`;
-            if (typeof navigator !== "undefined" && navigator.share) {
-              navigator.share({ title: eventName, text, url });
-            } else {
-              navigator.clipboard.writeText(`${text}\n${url}`);
-            }
-          }}>Compartilhar</GhostBtn>
-          <GhostBtn icon={<DownloadIcon />} onClick={() => alert("Exportando CSV...")}>Exportar CSV</GhostBtn>
-        </div>
       </div>
 
       {/* Stats — flat 4-col grid: donut (col-span-2→1) + 3 tiles */}
