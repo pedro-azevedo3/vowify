@@ -5,6 +5,21 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 // ── Lookup tables ─────────────────────────────────────────────────────────
+const ACCENTS: Record<string, { color: string; bg: string }> = {
+  violet:          { color: "#b14eff", bg: "#f1e1ff" },
+  ocean:           { color: "#6366f1", bg: "#e0e7ff" },
+  sunset:          { color: "#f97316", bg: "#ffedd5" },
+  forest:          { color: "#0891b2", bg: "#cffafe" },
+  midnight:        { color: "#7c3aed", bg: "#ede9fe" },
+  rose:            { color: "#f43f5e", bg: "#ffe4e6" },
+  gold:            { color: "#d97706", bg: "#fef3c7" },
+  mint:            { color: "#06b6d4", bg: "#cffafe" },
+  blue:            { color: "#2563eb", bg: "#dbeafe" },
+  black:           { color: "#374151", bg: "#f3f4f6" },
+  green:           { color: "#16a34a", bg: "#dcfce7" },
+  white:           { color: "#475569", bg: "#f1f5f9" },
+};
+
 const GRADIENTS: Record<string, string> = {
   violet:   "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)",
   ocean:    "linear-gradient(135deg,#0ea5e9 0%,#6366f1 60%,#8b5cf6 100%)",
@@ -115,6 +130,7 @@ export default function ConviteClient({ id }: { id: string }) {
 function ConviteContent({ event, eventId }: { event: EventData; eventId: string }) {
   const gradient   = GRADIENTS[event.color_id] ?? GRADIENTS.violet;
   const fontFamily = FONTS[event.font_id] ?? FONTS.bricolage;
+  const accent     = ACCENTS[event.color_id] ?? ACCENTS.violet;
 
   const [going,     setGoing]     = useState<Going>(null);
   const [plusOne,   setPlusOne]   = useState(false);
@@ -207,20 +223,20 @@ function ConviteContent({ event, eventId }: { event: EventData; eventId: string 
 
         {/* Event details */}
         <div style={{ padding: "20px 24px 8px" }}>
-          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", color: "#b14eff", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", color: accent.color, marginBottom: 8 }}>
             {event.organizer_name ? `${event.organizer_name} está te convidando` : "Você foi convidado"}
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.02em", margin: "0 0 16px", lineHeight: 1.1, color: "#0f0b1e" }}>{event.name}</h1>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-            <DetailItem icon={<CalendarIcon />} title={`${event.date}${event.time ? ` · ${event.time}` : ""}`} subtitle="Confirme sua presença" />
-            {event.location && <DetailItem icon={<PinIcon />} title={event.location} subtitle={event.address} />}
-            {event.traje_on && event.traje_text && <DetailItem icon={<ShirtIcon />} title={`Traje: ${event.traje_text}`} subtitle="Vista-se para a ocasião" />}
+            <DetailItem icon={<CalendarIcon />} title={`${event.date}${event.time ? ` · ${event.time}` : ""}`} subtitle="Confirme sua presença" accent={accent} />
+            {event.location && <DetailItem icon={<PinIcon />} title={event.location} subtitle={event.address} accent={accent} />}
+            {event.traje_on && event.traje_text && <DetailItem icon={<ShirtIcon />} title={`Traje: ${event.traje_text}`} subtitle="Vista-se para a ocasião" accent={accent} />}
           </div>
 
           {event.msg_on && event.msg_text && (
             <div style={{ padding: 14, background: "#fff", borderRadius: 12, border: "1px solid #ece7f5", marginBottom: 24 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <AvatarComp name={event.organizer_name || event.name} />
+                <AvatarComp name={event.organizer_name || event.name} color={accent.color} />
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>{event.organizer_name || "Organizador"}</div>
                   <div style={{ fontSize: 11, color: "#6e6880" }}>recado especial</div>
@@ -390,10 +406,11 @@ function RsvpButton({ label, emoji, active, variant, gradient, onClick }: { labe
     </button>
   );
 }
-function DetailItem({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
+function DetailItem({ icon, title, subtitle, accent }: { icon: React.ReactNode; title: string; subtitle: string; accent?: { color: string; bg: string } }) {
+  const ac = accent ?? { color: "#b14eff", bg: "#f1e1ff" };
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#fff", borderRadius: 12, border: "1px solid #ece7f5" }}>
-      <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ffe5ee 0%,#f1e1ff 60%,#e8dcff 100%)", color: "#b14eff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</div>
+      <div style={{ width: 36, height: 36, borderRadius: 10, background: ac.bg, color: ac.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</div>
       <div>
         <div style={{ fontSize: 14, fontWeight: 500, color: "#0f0b1e" }}>{title}</div>
         <div style={{ fontSize: 12, color: "#6e6880" }}>{subtitle}</div>
@@ -401,10 +418,11 @@ function DetailItem({ icon, title, subtitle }: { icon: React.ReactNode; title: s
     </div>
   );
 }
-function AvatarComp({ name }: { name: string }) {
+function AvatarComp({ name, color }: { name: string; color?: string }) {
   const colors = ["#ff4d8d","#b14eff","#7a3aff","#2f6bff","#16a34a"];
   const idx = Math.abs([...name].reduce((a,c) => a + c.charCodeAt(0), 0)) % colors.length;
-  return <span style={{ width: 32, height: 32, borderRadius: 999, background: colors[idx], display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: "#fff", flexShrink: 0 }}>{name.split(" ").slice(0,2).map(w=>w[0]).join("")}</span>;
+  const bg = color ?? colors[idx];
+  return <span style={{ width: 32, height: 32, borderRadius: 999, background: bg, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: "#fff", flexShrink: 0 }}>{name.split(" ").slice(0,2).map(w=>w[0]).join("")}</span>;
 }
 function CalendarIcon() { return <svg viewBox="0 0 16 16" width="15" height="15" fill="none"><rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M2 6h12M5 2v2M11 2v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>; }
 function PinIcon() { return <svg viewBox="0 0 16 16" width="15" height="15" fill="none"><path d="M8 14s5-4 5-8a5 5 0 10-10 0c0 4 5 8 5 8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><circle cx="8" cy="6" r="1.7" stroke="currentColor" strokeWidth="1.5"/></svg>; }
