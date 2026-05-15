@@ -36,8 +36,8 @@ export default async function OGImage(
     .eq("id", id)
     .single();
 
-  const eventName  = data?.name           ?? "Convite";
-  const organizer  = data?.organizer_name ?? "";
+  const eventName  = data?.name            || "Convite";
+  const organizer  = data?.organizer_name  || "";
   const colorId    = data?.color_id       ?? "violet";
   const [c1, c2, c3] = COLORS[colorId] ?? COLORS.violet;
 

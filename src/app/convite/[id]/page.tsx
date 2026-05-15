@@ -21,9 +21,11 @@ export async function generateMetadata(
   const { id } = await props.params;
   const event = await getEventMeta(id);
 
-  const eventName   = event?.name           ?? "Convite";
-  const organizer   = event?.organizer_name ?? "Alguém";
-  const title       = `${organizer} está te convidando para ${eventName}!`;
+  const eventName   = event?.name            || "Convite";
+  const organizer   = event?.organizer_name  || "";
+  const title       = organizer
+    ? `${organizer} está te convidando para ${eventName}!`
+    : `Você foi convidado para ${eventName}!`;
   const description = `Confirme sua presença em ${eventName}. Leva menos de 10 segundos — sem baixar nada.`;
   const siteUrl     = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vowify.netlify.app";
 
