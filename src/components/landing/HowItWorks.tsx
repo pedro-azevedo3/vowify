@@ -8,9 +8,9 @@ export function HowItWorks() {
 
   const steps = [
     {
-      n: "01", t: "Suba o convite",
-      d: "Faça upload do seu PDF ou imagem (Canva, designer, sua tia que ama Photoshop — tanto faz).",
-      vis: <UploadVis animate={inView} />,
+      n: "01", t: "Personalize o convite",
+      d: "Escolha a paleta de cores, a tipografia e preencha os detalhes do evento. O convite fica pronto em segundos, sem precisar de designer.",
+      vis: <CustomizeVis animate={inView} />,
     },
     {
       n: "02", t: "Envie pelo WhatsApp",
@@ -58,21 +58,35 @@ export function HowItWorks() {
   );
 }
 
-function UploadVis({ animate }: { animate: boolean }) {
+function CustomizeVis({ animate }: { animate: boolean }) {
+  const palettes = [
+    "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)",
+    "linear-gradient(135deg,#0ea5e9 0%,#6366f1 60%,#8b5cf6 100%)",
+    "linear-gradient(135deg,#f97316 0%,#ec4899 60%,#a855f7 100%)",
+    "linear-gradient(135deg,#4ade80 0%,#16a34a 60%,#14532d 100%)",
+  ];
   return (
-    <div style={{ position: "relative", width: 160, height: 160 }}>
-      <div style={{ position: "absolute", inset: 0, border: "2px dashed rgba(177,78,255,.5)", borderRadius: 16, background: "rgba(255,255,255,.6)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" as const, gap: 8, color: "#b14eff" }}>
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        <span style={{ fontSize: 12, fontWeight: 500 }}>convite.pdf</span>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 180, opacity: animate ? 1 : 0, transition: "opacity 0.45s ease 0.2s" }}>
+      {/* Colour swatches */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
+        {palettes.map((g, i) => (
+          <div key={i} style={{ height: 28, borderRadius: 7, background: g, border: i === 0 ? "2.5px solid #0f0b1e" : "2px solid transparent", boxShadow: i === 0 ? "0 0 0 2px #fff inset" : "none" }} />
+        ))}
       </div>
-      <div
-        className={animate ? "vw-float" : ""}
-        style={{ position: "absolute", right: -20, bottom: -20, width: 90, height: 110, background: "#fff", padding: 8, display: "flex", flexDirection: "column" as const, gap: 4, transform: "rotate(6deg)", borderRadius: 10, border: "1px solid #ece7f5", boxShadow: "0 20px 60px rgba(122,58,255,.18), 0 6px 18px rgba(15,11,30,.08)", opacity: animate ? 1 : 0, transition: "opacity 0.5s ease 0.35s" }}
-      >
-        <div style={{ height: 32, background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", borderRadius: 4 }} />
-        <div style={{ height: 4, background: "#ece7f5", borderRadius: 2, width: "80%" }} />
-        <div style={{ height: 4, background: "#ece7f5", borderRadius: 2, width: "60%" }} />
-        <div style={{ height: 4, background: "#ece7f5", borderRadius: 2, width: "70%" }} />
+      {/* Font rows */}
+      {[
+        { label: "Bricolage", active: true },
+        { label: "Poppins",   active: false },
+        { label: "Inter",     active: false },
+      ].map(({ label, active }) => (
+        <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", borderRadius: 8, background: active ? "#faf7ff" : "#fff", border: active ? "1.5px solid #b14eff" : "1px solid #ece7f5" }}>
+          <span style={{ fontSize: 12, color: "#0f0b1e", fontWeight: active ? 600 : 400 }}>{label}</span>
+          {active && <span style={{ width: 14, height: 14, borderRadius: 999, background: "#b14eff", display: "flex", alignItems: "center", justifyContent: "center" }}><svg viewBox="0 0 10 10" width="8" height="8" fill="none"><path d="M2 5.5l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>}
+        </div>
+      ))}
+      {/* Mini invite preview */}
+      <div className={animate ? "vw-float" : ""} style={{ height: 36, borderRadius: 8, background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", display: "flex", alignItems: "center", paddingLeft: 10 }}>
+        <span style={{ fontSize: 10, color: "#fff", fontWeight: 600, opacity: .9 }}>Preview do convite</span>
       </div>
     </div>
   );
