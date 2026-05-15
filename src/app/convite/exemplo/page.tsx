@@ -14,21 +14,31 @@ const GRADIENTS: Record<string, string> = {
   rose:     "linear-gradient(135deg,#f43f5e 0%,#ec4899 60%,#a855f7 100%)",
   gold:     "linear-gradient(135deg,#f59e0b 0%,#ef4444 60%,#ec4899 100%)",
   mint:     "linear-gradient(135deg,#34d399 0%,#06b6d4 60%,#3b82f6 100%)",
+  blue:     "linear-gradient(135deg,#60a5fa 0%,#2563eb 60%,#1e40af 100%)",
+  black:    "linear-gradient(135deg,#374151 0%,#1f2937 60%,#030712 100%)",
+  green:    "linear-gradient(135deg,#4ade80 0%,#16a34a 60%,#14532d 100%)",
+  white:    "linear-gradient(135deg,#e2e8f0 0%,#94a3b8 60%,#475569 100%)",
 };
 
 const FONTS: Record<string, string> = {
-  bricolage:  "var(--font-bricolage), system-ui, sans-serif",
-  playfair:   "'Playfair Display', Georgia, serif",
-  cormorant:  "'Cormorant Garamond', Georgia, serif",
-  montserrat: "'Montserrat', system-ui, sans-serif",
-  dancing:    "'Dancing Script', Georgia, cursive",
+  bricolage:       "var(--font-bricolage), system-ui, sans-serif",
+  inter:           "'Inter', system-ui, sans-serif",
+  poppins:         "'Poppins', system-ui, sans-serif",
+  "league-spartan":"'League Spartan', system-ui, sans-serif",
+  playfair:        "'Playfair Display', Georgia, serif",
+  cormorant:       "'Cormorant Garamond', Georgia, serif",
+  montserrat:      "'Montserrat', system-ui, sans-serif",
+  dancing:         "'Dancing Script', Georgia, cursive",
 };
 
 const FONT_URLS: Record<string, string> = {
-  playfair:   "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap",
-  cormorant:  "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap",
-  montserrat: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap",
-  dancing:    "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap",
+  inter:           "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+  poppins:         "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap",
+  "league-spartan":"https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700&display=swap",
+  playfair:        "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap",
+  cormorant:       "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap",
+  montserrat:      "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap",
+  dancing:         "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap",
 };
 
 type Going = "yes" | "no" | null;

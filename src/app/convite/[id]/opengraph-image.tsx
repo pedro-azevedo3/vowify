@@ -14,6 +14,10 @@ const COLORS: Record<string, [string, string, string]> = {
   rose:     ["#f43f5e", "#ec4899", "#a855f7"],
   gold:     ["#f59e0b", "#ef4444", "#ec4899"],
   mint:     ["#34d399", "#06b6d4", "#3b82f6"],
+  blue:     ["#60a5fa", "#2563eb", "#1e40af"],
+  black:    ["#374151", "#1f2937", "#030712"],
+  green:    ["#4ade80", "#16a34a", "#14532d"],
+  white:    ["#e2e8f0", "#94a3b8", "#475569"],
 };
 
 export default async function OGImage(

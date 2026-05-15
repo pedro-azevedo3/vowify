@@ -889,14 +889,21 @@ const COLOR_THEMES = [
   { id: "rose",    label: "Rosa",      gradient: "linear-gradient(135deg,#f43f5e 0%,#ec4899 60%,#a855f7 100%)" },
   { id: "gold",    label: "Dourado",   gradient: "linear-gradient(135deg,#f59e0b 0%,#ef4444 60%,#ec4899 100%)" },
   { id: "mint",    label: "Menta",     gradient: "linear-gradient(135deg,#34d399 0%,#06b6d4 60%,#3b82f6 100%)" },
+  { id: "blue",    label: "Azul",      gradient: "linear-gradient(135deg,#60a5fa 0%,#2563eb 60%,#1e40af 100%)" },
+  { id: "black",   label: "Preto",     gradient: "linear-gradient(135deg,#374151 0%,#1f2937 60%,#030712 100%)" },
+  { id: "green",   label: "Verde",     gradient: "linear-gradient(135deg,#4ade80 0%,#16a34a 60%,#14532d 100%)" },
+  { id: "white",   label: "Branco",    gradient: "linear-gradient(135deg,#e2e8f0 0%,#94a3b8 60%,#475569 100%)" },
 ];
 
 const FONT_OPTIONS = [
-  { id: "bricolage", label: "Bricolage Grotesque", family: "var(--font-bricolage), system-ui, sans-serif", sample: "Festa dos 30 anos" },
-  { id: "playfair",  label: "Playfair Display",    family: "'Playfair Display', Georgia, serif",            sample: "Festa dos 30 anos" },
-  { id: "cormorant", label: "Cormorant Garamond",  family: "'Cormorant Garamond', Georgia, serif",          sample: "Festa dos 30 anos" },
-  { id: "montserrat",label: "Montserrat",           family: "'Montserrat', system-ui, sans-serif",           sample: "Festa dos 30 anos" },
-  { id: "dancing",   label: "Dancing Script",       family: "'Dancing Script', Georgia, cursive",            sample: "Festa dos 30 anos" },
+  { id: "bricolage",      label: "Bricolage Grotesque", family: "var(--font-bricolage), system-ui, sans-serif", sample: "Festa dos 30 anos" },
+  { id: "inter",          label: "Inter",               family: "'Inter', system-ui, sans-serif",               sample: "Festa dos 30 anos" },
+  { id: "poppins",        label: "Poppins",             family: "'Poppins', system-ui, sans-serif",             sample: "Festa dos 30 anos" },
+  { id: "league-spartan", label: "League Spartan",      family: "'League Spartan', system-ui, sans-serif",      sample: "Festa dos 30 anos" },
+  { id: "playfair",       label: "Playfair Display",    family: "'Playfair Display', Georgia, serif",           sample: "Festa dos 30 anos" },
+  { id: "cormorant",      label: "Cormorant Garamond",  family: "'Cormorant Garamond', Georgia, serif",         sample: "Festa dos 30 anos" },
+  { id: "montserrat",     label: "Montserrat",          family: "'Montserrat', system-ui, sans-serif",          sample: "Festa dos 30 anos" },
+  { id: "dancing",        label: "Dancing Script",      family: "'Dancing Script', Georgia, cursive",           sample: "Festa dos 30 anos" },
 ];
 
 // ── Settings View ──────────────────────────────────────────────────────────
@@ -936,7 +943,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   return (
     <>
       {/* Load Google Fonts for preview */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@500;600;700&family=Dancing+Script:wght@600;700&display=swap');`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@500;600;700&family=Dancing+Script:wght@600;700&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=League+Spartan:wght@400;500;600;700&display=swap');`}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <div>
