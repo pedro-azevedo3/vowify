@@ -910,18 +910,28 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   onPersistInfo: (payload: InfoSavePayload) => Promise<void>;
   onPersistAppearance: (colorId: string, fontId: string) => Promise<void>;
 }) {
-  const [savedInfo,    setSavedInfo]    = useState(false);
-  const [savedAppear,  setSavedAppear]  = useState(false);
+  const [saved,         setSaved]         = useState(false);
+  const [showAllThemes, setShowAllThemes] = useState(false);
+  const [showAllFonts,  setShowAllFonts]  = useState(false);
+  const [draftName,     setDraftName]     = useState(eventName);
+  const [draftDate,     setDraftDate]     = useState(eventInfo.date);
+  const [draftTime,     setDraftTime]     = useState(eventInfo.time);
+  const [draftLocation, setDraftLocation] = useState(eventInfo.location);
+  const [draftAddress,  setDraftAddress]  = useState(eventInfo.address);
+  const [draftLimit,    setDraftLimit]    = useState(String(guestLimit));
+  const [limitError,    setLimitError]    = useState("");
 
-  const saveInfo = (payload: InfoSavePayload) => {
-    onPersistInfo(payload);
-    setSavedInfo(true);
-    setTimeout(() => setSavedInfo(false), 1500);
-  };
-  const saveAppear = () => {
+  const saveAll = () => {
+    const n = parseInt(draftLimit, 10);
+    if (!n || n < 1) { setLimitError("O mínimo de convidados é 1."); return; }
+    setLimitError("");
+    setGuestLimit(n);
+    setEventName(draftName);
+    setEventInfo({ date: draftDate, time: draftTime, location: draftLocation, address: draftAddress });
+    onPersistInfo({ name: draftName, date: draftDate, time: draftTime, location: draftLocation, address: draftAddress, guestLimit: n, trajeOn, trajeText, acompOn, restricaoOn, msgOn, msgText });
     onPersistAppearance(colorId, fontId);
-    setSavedAppear(true);
-    setTimeout(() => setSavedAppear(false), 1500);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
   };
 
   const theme = COLOR_THEMES.find(t => t.id === colorId)!;
@@ -956,7 +966,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                   Paleta de cores
                 </label>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-                  {COLOR_THEMES.map(t => (
+                  {(showAllThemes ? COLOR_THEMES : COLOR_THEMES.slice(0, 4)).map(t => (
                     <button
                       key={t.id}
                       onClick={() => setColorId(t.id)}
@@ -983,7 +993,12 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                     </button>
                   ))}
                 </div>
-                <p style={{ fontSize: 12, color: "#9994ac", marginTop: 6 }}>Selecionado: <strong style={{ color: "#2a2440" }}>{theme.label}</strong></p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
+                  <p style={{ fontSize: 12, color: "#9994ac", margin: 0 }}>Selecionado: <strong style={{ color: "#2a2440" }}>{theme.label}</strong></p>
+                  <button onClick={() => setShowAllThemes(v => !v)} style={{ fontSize: 12, color: "#b14eff", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 500 }}>
+                    {showAllThemes ? "Ver menos" : "Ver todos os temas"}
+                  </button>
+                </div>
               </div>
 
               {/* Font selector */}
@@ -992,7 +1007,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                   Tipografia
                 </label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {FONT_OPTIONS.map(f => (
+                  {(showAllFonts ? FONT_OPTIONS : FONT_OPTIONS.slice(0, 3)).map(f => (
                     <button
                       key={f.id}
                       onClick={() => setFontId(f.id)}
@@ -1021,11 +1036,9 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                 </div>
               </div>
 
-              {/* Save */}
-              <div>
-                <PrimaryBtn onClick={saveAppear} disabled={savedAppear}>Salvar aparência</PrimaryBtn>
-              </div>
-              <SavedToast visible={savedAppear} message="Aparência salva!" />
+              <button onClick={() => setShowAllFonts(v => !v)} style={{ fontSize: 12, color: "#b14eff", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 500, textAlign: "left" }}>
+                {showAllFonts ? "Ver menos" : "Ver todas as opções de fontes"}
+              </button>
             </div>
 
             {/* Live preview */}
@@ -1037,7 +1050,13 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
         </Card>
 
         {/* ── Informações do evento ── */}
-        <EventInfoCard event={event} onSaved={saveInfo} saved={savedInfo} guestLimit={guestLimit} setGuestLimit={setGuestLimit} trajeOn={trajeOn} setTrajeOn={setTrajeOn} acompOn={acompOn} setAcompOn={setAcompOn} restricaoOn={restricaoOn} setRestricaoOn={setRestricaoOn} trajeText={trajeText} setTrajeText={setTrajeText} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} msgOn={msgOn} setMsgOn={setMsgOn} msgText={msgText} setMsgText={setMsgText} />
+        <EventInfoCard event={event} guestLimit={guestLimit} trajeOn={trajeOn} setTrajeOn={setTrajeOn} acompOn={acompOn} setAcompOn={setAcompOn} restricaoOn={restricaoOn} setRestricaoOn={setRestricaoOn} trajeText={trajeText} setTrajeText={setTrajeText} msgOn={msgOn} setMsgOn={setMsgOn} msgText={msgText} setMsgText={setMsgText} draftName={draftName} setDraftName={setDraftName} draftDate={draftDate} setDraftDate={setDraftDate} draftTime={draftTime} setDraftTime={setDraftTime} draftLocation={draftLocation} setDraftLocation={setDraftLocation} draftAddress={draftAddress} setDraftAddress={setDraftAddress} draftLimit={draftLimit} setDraftLimit={setDraftLimit} limitError={limitError} setLimitError={setLimitError} />
+
+        {/* ── Botão único de salvar ── */}
+        <div>
+          <PrimaryBtn onClick={saveAll} disabled={saved}>Salvar configurações</PrimaryBtn>
+          <SavedToast visible={saved} message="Configurações salvas!" />
+        </div>
 
         {/* ── Link & QR Code ── */}
         {(() => {
@@ -1183,27 +1202,24 @@ function InvitePreview({ gradient, fontFamily, eventName, eventWhen, eventLocati
   );
 }
 
-// ── Event info card (own state for traje toggle) ──────────────────────────
-function EventInfoCard({ event, saved, onSaved, guestLimit, setGuestLimit, trajeOn, setTrajeOn, acompOn, setAcompOn, restricaoOn, setRestricaoOn, trajeText, setTrajeText, eventName, setEventName, eventInfo, setEventInfo, msgOn, setMsgOn, msgText, setMsgText }: {
-  event: { id: string; name: string; when: string }; saved: boolean; onSaved: (payload: InfoSavePayload) => void;
-  guestLimit: number; setGuestLimit: (n: number) => void;
+// ── Event info card ────────────────────────────────────────────────────────
+function EventInfoCard({ event, guestLimit, trajeOn, setTrajeOn, acompOn, setAcompOn, restricaoOn, setRestricaoOn, trajeText, setTrajeText, msgOn, setMsgOn, msgText, setMsgText, draftName, setDraftName, draftDate, setDraftDate, draftTime, setDraftTime, draftLocation, setDraftLocation, draftAddress, setDraftAddress, draftLimit, setDraftLimit, limitError, setLimitError }: {
+  event: { id: string; name: string; when: string };
+  guestLimit: number;
   trajeOn: boolean; setTrajeOn: (v: boolean) => void;
   acompOn: boolean; setAcompOn: (v: boolean) => void;
   restricaoOn: boolean; setRestricaoOn: (v: boolean) => void;
   trajeText: string; setTrajeText: (v: string) => void;
-  eventName: string; setEventName: (v: string) => void;
-  eventInfo: { date: string; time: string; location: string; address: string };
-  setEventInfo: (v: { date: string; time: string; location: string; address: string }) => void;
   msgOn: boolean; setMsgOn: (v: boolean) => void;
   msgText: string; setMsgText: (v: string) => void;
+  draftName: string; setDraftName: (v: string) => void;
+  draftDate: string; setDraftDate: (v: string) => void;
+  draftTime: string; setDraftTime: (v: string) => void;
+  draftLocation: string; setDraftLocation: (v: string) => void;
+  draftAddress: string; setDraftAddress: (v: string) => void;
+  draftLimit: string; setDraftLimit: (v: string) => void;
+  limitError: string; setLimitError: (v: string) => void;
 }) {
-  const [draftEventName,  setDraftEventName]  = useState(eventName);
-  const [draftDate,       setDraftDate]       = useState(eventInfo.date);
-  const [draftTime,       setDraftTime]       = useState(eventInfo.time);
-  const [draftLocation,   setDraftLocation]   = useState(eventInfo.location);
-  const [draftAddress,    setDraftAddress]    = useState(eventInfo.address);
-  const [draftGuestLimit, setDraftGuestLimit] = useState(String(guestLimit));
-  const [guestLimitError, setGuestLimitError] = useState("");
 
   const inputStyle: React.CSSProperties = {
     height: 40, padding: "0 12px", borderRadius: 10,
@@ -1228,7 +1244,7 @@ function EventInfoCard({ event, saved, onSaved, guestLimit, setGuestLimit, traje
         {/* Nome do evento — controlado */}
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
           <label style={{ fontSize: 11, fontWeight: 600, color: "#6e6880", textTransform: "uppercase", letterSpacing: ".04em" }}>Nome do evento</label>
-          <input type="text" value={draftEventName} onChange={e => setDraftEventName(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} />
+          <input type="text" value={draftName} onChange={e => setDraftName(e.target.value)} style={inputStyle} onFocus={focus} onBlur={blur} />
         </div>
 
         {/* Demais campos controlados */}
@@ -1254,15 +1270,15 @@ function EventInfoCard({ event, saved, onSaved, guestLimit, setGuestLimit, traje
           </div>
           <input
             type="number"
-            value={draftGuestLimit}
+            value={draftLimit}
             min={1}
-            onChange={e => { setDraftGuestLimit(e.target.value); setGuestLimitError(""); }}
-            style={{ ...inputStyle, borderColor: guestLimitError ? "#e1124e" : undefined }}
+            onChange={e => { setDraftLimit(e.target.value); setLimitError(""); }}
+            style={{ ...inputStyle, borderColor: limitError ? "#e1124e" : undefined }}
             onFocus={focus}
             onBlur={blur}
           />
-          {guestLimitError && (
-            <p style={{ fontSize: 12, color: "#e1124e", margin: "4px 0 0" }}>{guestLimitError}</p>
+          {limitError && (
+            <p style={{ fontSize: 12, color: "#e1124e", margin: "4px 0 0" }}>{limitError}</p>
           )}
         </div>
 
@@ -1386,17 +1402,6 @@ function EventInfoCard({ event, saved, onSaved, guestLimit, setGuestLimit, traje
           )}
         </div>
 
-        <div style={{ paddingTop: 8 }}>
-          <PrimaryBtn onClick={() => {
-            const n = parseInt(draftGuestLimit, 10);
-            if (!n || n < 1) { setGuestLimitError("O mínimo de convidados é 1."); return; }
-            setGuestLimit(n);
-            setEventName(draftEventName);
-            setEventInfo({ date: draftDate, time: draftTime, location: draftLocation, address: draftAddress });
-            onSaved({ name: draftEventName, date: draftDate, time: draftTime, location: draftLocation, address: draftAddress, guestLimit: n, trajeOn, trajeText, acompOn, restricaoOn, msgOn, msgText });
-          }} disabled={saved}>Salvar alterações</PrimaryBtn>
-        </div>
-        <SavedToast visible={saved} message="Alterações salvas!" />
       </div>
     </Card>
   );
