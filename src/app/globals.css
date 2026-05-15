@@ -222,6 +222,53 @@
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+/* ── CRM dark mode tokens ─────────────────────────────────────────────────── */
+:root {
+  --vw-bg:          #faf7ff;
+  --vw-card:        #ffffff;
+  --vw-border:      #ece7f5;
+  --vw-border2:     #f4f0fa;
+  --vw-t1:          #0f0b1e;
+  --vw-t2:          #2a2440;
+  --vw-t3:          #6e6880;
+  --vw-t4:          #9994ac;
+  --vw-t5:          #c4bfd4;
+  --vw-hover:       #faf7ff;
+  --vw-input:       #ffffff;
+  --vw-nav-active:  linear-gradient(135deg,#ffe5ee 0%,#f1e1ff 60%,#e8dcff 100%);
+  --vw-shadow:      0 1px 2px rgba(15,11,30,.04), 0 6px 24px rgba(15,11,30,.04);
+}
+
+.crm-dark {
+  --vw-bg:          #0d0b18;
+  --vw-card:        #13101f;
+  --vw-border:      #26203a;
+  --vw-border2:     #1e1a2e;
+  --vw-t1:          #eee8f8;
+  --vw-t2:          #c4b8e0;
+  --vw-t3:          #7a7390;
+  --vw-t4:          #504c66;
+  --vw-t5:          #36324a;
+  --vw-hover:       #1a1629;
+  --vw-input:       #1a1629;
+  --vw-nav-active:  linear-gradient(135deg,#2a1535 0%,#1e1540 60%,#191040 100%);
+  --vw-shadow:      0 1px 2px rgba(0,0,0,.2), 0 6px 24px rgba(0,0,0,.15);
+}
+
+/* keep invite preview always light even inside .crm-dark */
+.vw-preview-reset {
+  --vw-card:    #ffffff !important;
+  --vw-border:  #ece7f5 !important;
+  --vw-border2: #f4f0fa !important;
+  --vw-t1:      #0f0b1e !important;
+  --vw-t2:      #2a2440 !important;
+  --vw-t3:      #6e6880 !important;
+  --vw-t4:      #9994ac !important;
+  --vw-t5:      #c4bfd4 !important;
+  --vw-hover:   #faf7ff !important;
+  --vw-input:   #ffffff !important;
+}
+
 /* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .vw-anim-up, .vw-anim-left, .vw-anim-right,
