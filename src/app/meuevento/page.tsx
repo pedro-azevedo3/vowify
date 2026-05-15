@@ -1042,7 +1042,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
             </div>
 
             {/* Live preview */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, position: "sticky", top: 20 }}>
               <span style={{ fontSize: 11, fontWeight: 600, color: "#9994ac", textTransform: "uppercase", letterSpacing: ".06em" }}>Preview</span>
               <InvitePreview gradient={theme.gradient} fontFamily={font.family} eventName={eventName} eventWhen={`${eventInfo.date} · ${eventInfo.time}`} eventLocation={eventInfo.location} />
             </div>
