@@ -1047,10 +1047,11 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
               <InvitePreview gradient={theme.gradient} fontFamily={font.family} eventName={eventName} eventWhen={`${eventInfo.date} · ${eventInfo.time}`} eventLocation={eventInfo.location} />
             </div>
           </div>
-        </Card>
+          <div style={{ height: 1, background: "#ece7f5", margin: "24px 0" }} />
 
-        {/* ── Informações do evento ── */}
-        <EventInfoCard event={event} guestLimit={guestLimit} trajeOn={trajeOn} setTrajeOn={setTrajeOn} acompOn={acompOn} setAcompOn={setAcompOn} restricaoOn={restricaoOn} setRestricaoOn={setRestricaoOn} trajeText={trajeText} setTrajeText={setTrajeText} msgOn={msgOn} setMsgOn={setMsgOn} msgText={msgText} setMsgText={setMsgText} draftName={draftName} setDraftName={setDraftName} draftDate={draftDate} setDraftDate={setDraftDate} draftTime={draftTime} setDraftTime={setDraftTime} draftLocation={draftLocation} setDraftLocation={setDraftLocation} draftAddress={draftAddress} setDraftAddress={setDraftAddress} draftLimit={draftLimit} setDraftLimit={setDraftLimit} limitError={limitError} setLimitError={setLimitError} />
+          <SectionTitle>Informações do evento</SectionTitle>
+          <EventInfoCard event={event} guestLimit={guestLimit} trajeOn={trajeOn} setTrajeOn={setTrajeOn} acompOn={acompOn} setAcompOn={setAcompOn} restricaoOn={restricaoOn} setRestricaoOn={setRestricaoOn} trajeText={trajeText} setTrajeText={setTrajeText} msgOn={msgOn} setMsgOn={setMsgOn} msgText={msgText} setMsgText={setMsgText} draftName={draftName} setDraftName={setDraftName} draftDate={draftDate} setDraftDate={setDraftDate} draftTime={draftTime} setDraftTime={setDraftTime} draftLocation={draftLocation} setDraftLocation={setDraftLocation} draftAddress={draftAddress} setDraftAddress={setDraftAddress} draftLimit={draftLimit} setDraftLimit={setDraftLimit} limitError={limitError} setLimitError={setLimitError} />
+        </Card>
 
         {/* ── Botão único de salvar ── */}
         <div>
@@ -1237,9 +1238,8 @@ function EventInfoCard({ event, guestLimit, trajeOn, setTrajeOn, acompOn, setAco
   };
 
   return (
-    <Card>
-      <SectionTitle>Informações do evento</SectionTitle>
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 16, maxWidth: 500 }}>
+    <div style={{ maxWidth: 500 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
         {/* Nome do evento — controlado */}
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -1403,7 +1403,7 @@ function EventInfoCard({ event, guestLimit, trajeOn, setTrajeOn, acompOn, setAco
         </div>
 
       </div>
-    </Card>
+    </div>
   );
 }
 
