@@ -994,10 +994,10 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                   ))}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
-                  <p style={{ fontSize: 12, color: "#9994ac", margin: 0 }}>Selecionado: <strong style={{ color: "#2a2440" }}>{theme.label}</strong></p>
                   <button onClick={() => setShowAllThemes(v => !v)} style={{ fontSize: 12, color: "#b14eff", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 500 }}>
                     {showAllThemes ? "Ver menos" : "Ver todos os temas"}
                   </button>
+                  <p style={{ fontSize: 12, color: "#9994ac", margin: 0 }}>Selecionado: <strong style={{ color: "#2a2440" }}>{theme.label}</strong></p>
                 </div>
               </div>
 
