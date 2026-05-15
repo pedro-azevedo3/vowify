@@ -352,8 +352,10 @@ export default function MinhaFestaPage() {
         )}
 
         {view === "messages"  && <MessagesView />}
-        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} organizerName={ev.organizerName} userName={userName} />}
+        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} organizerName={ev.organizerName} userName={userName} sidebarEvents={sidebarEvents} />}
       </main>
+
+      <AppToast />
     </div>
   );
 }
@@ -387,7 +389,7 @@ function UserMenu({ userName, userEmail }: { userName: string; userEmail: string
           overflow: "hidden", zIndex: 50,
         }}>
           <button
-            onClick={() => { setOpen(false); alert("Histórico de compras — em breve!"); }}
+            onClick={() => { setOpen(false); showToast("Histórico de compras — em breve!"); }}
             style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "11px 14px", background: "none", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 500, color: "#2a2440", fontFamily: "inherit", textAlign: "left" }}
             onMouseEnter={e => (e.currentTarget.style.background = "#faf7ff")}
             onMouseLeave={e => (e.currentTarget.style.background = "none")}
@@ -449,7 +451,7 @@ function Sidebar({ view, setView, activeEventId, setActiveEventId, navItems, eve
       </Link>
 
       <button
-        onClick={() => alert("Criar novo evento — em breve!")}
+        onClick={() => showToast("Criar novo evento — em breve!")}
         style={{ height: 36, borderRadius: 10, border: "none", fontSize: 14, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", boxShadow: "0 4px 14px rgba(177,78,255,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit", transition: "opacity .15s" }}
         onMouseEnter={e => (e.currentTarget.style.opacity = ".88")}
         onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
@@ -894,9 +896,10 @@ const FONT_OPTIONS = [
 ];
 
 // ── Settings View ──────────────────────────────────────────────────────────
-function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance, organizerName, userName }: {
+function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance, organizerName, userName, sidebarEvents }: {
   event: { id: string; name: string; when: string }; guestLimit: number; setGuestLimit: (n: number) => void;
   eventName: string; setEventName: (n: string) => void; organizerName: string; userName: string;
+  sidebarEvents: SidebarEvent[];
   eventInfo: { date: string; time: string; location: string; address: string };
   setEventInfo: (v: { date: string; time: string; location: string; address: string }) => void;
   colorId: string; setColorId: (v: string) => void;
@@ -1091,7 +1094,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                 >
                   <EyeIcon /> Visualizar seu convite
                 </a>
-                <GhostBtn icon={<DownloadIcon />} onClick={() => alert("Baixando QR Code…")}>Baixar QR Code</GhostBtn>
+                <GhostBtn icon={<DownloadIcon />} onClick={() => showToast("Baixar QR Code — em breve!")}>Baixar QR Code</GhostBtn>
               </div>
 
               {/* Mensagem para WhatsApp */}
@@ -1152,6 +1155,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
           eventId={event.id}
           organizerName={organizerName}
           userName={userName}
+          sidebarEvents={sidebarEvents}
           onClose={() => setShowDelete(false)}
         />
       )}
@@ -1420,13 +1424,15 @@ function EventInfoCard({ event, guestLimit, trajeOn, setTrajeOn, acompOn, setAco
 }
 
 // ── Delete event modal ────────────────────────────────────────────────────
-function DeleteEventModal({ eventName, eventId, organizerName, userName, onClose }: {
-  eventName: string; eventId: string; organizerName: string; userName: string; onClose: () => void;
+function DeleteEventModal({ eventName, eventId, organizerName, userName, sidebarEvents, onClose }: {
+  eventName: string; eventId: string; organizerName: string; userName: string;
+  sidebarEvents: SidebarEvent[]; onClose: () => void;
 }) {
   const [input,   setInput]   = useState("");
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
   const match = input.trim() === eventName.trim();
+  const hasOtherEvents = sidebarEvents.some(e => e.id !== eventId);
 
   const handleDelete = async () => {
     if (!match) return;
@@ -1434,14 +1440,16 @@ function DeleteEventModal({ eventName, eventId, organizerName, userName, onClose
     try {
       await supabase.from("guests").delete().eq("event_id", eventId);
       await supabase.from("events").delete().eq("id", eventId);
-      const { data: session } = await supabase.auth.getSession();
-      const userId = session.session?.user?.id;
-      if (userId) {
-        await supabase.from("events").insert({
-          ...DEFAULT_EVENT,
-          user_id: userId,
-          organizer_name: organizerName || userName,
-        });
+      if (!hasOtherEvents) {
+        const { data: session } = await supabase.auth.getSession();
+        const userId = session.session?.user?.id;
+        if (userId) {
+          await supabase.from("events").insert({
+            ...DEFAULT_EVENT,
+            user_id: userId,
+            organizer_name: organizerName || userName,
+          });
+        }
       }
       window.location.reload();
     } catch {
@@ -1470,7 +1478,10 @@ function DeleteEventModal({ eventName, eventId, organizerName, userName, onClose
           Encerrar evento?
         </h2>
         <p style={{ fontSize: 14, color: "#6e6880", margin: "0 0 20px", lineHeight: 1.6 }}>
-          Esta ação é <strong style={{ color: "#0f0b1e" }}>irreversível</strong>. Todos os dados do evento e a lista de convidados serão excluídos permanentemente. Um novo evento em branco será criado para você.
+          Esta ação é <strong style={{ color: "#0f0b1e" }}>irreversível</strong>. Todos os dados do evento e a lista de convidados serão excluídos permanentemente.{" "}
+          {hasOtherEvents
+            ? "Você será redirecionado para outro evento."
+            : "Um novo evento em branco será criado para você."}
         </p>
 
         <div style={{ background: "#fde7ee", borderRadius: 10, padding: "10px 14px", marginBottom: 20, fontSize: 13, color: "#9a0a37" }}>
@@ -1537,6 +1548,44 @@ function PrimaryBtn({ children, icon, onClick, disabled }: { children?: React.Re
     >{icon}{children}</button>
   );
 }
+function showToast(msg: string) {
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new CustomEvent("vowify:toast", { detail: msg }));
+}
+
+function AppToast() {
+  const [msg, setMsg] = useState<string | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      setMsg(detail);
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => setMsg(null), 3000);
+    };
+    window.addEventListener("vowify:toast", handler);
+    return () => {
+      window.removeEventListener("vowify:toast", handler);
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, []);
+
+  if (!msg) return null;
+  return (
+    <div style={{
+      position: "fixed", bottom: 28, left: "50%", transform: "translateX(-50%)",
+      zIndex: 300, background: "#0f0b1e", color: "#fff",
+      padding: "12px 22px", borderRadius: 999, fontSize: 14, fontWeight: 500,
+      boxShadow: "0 8px 32px rgba(15,11,30,.3)", whiteSpace: "nowrap",
+      pointerEvents: "none", fontFamily: "var(--font-bricolage), system-ui, sans-serif",
+      animation: "vw-toast-in .18s cubic-bezier(0.22,1,0.36,1)",
+    }}>
+      {msg}
+    </div>
+  );
+}
+
 function SavedToast({ visible, message = "Alterações salvas!" }: { visible: boolean; message?: string }) {
   if (!visible) return null;
   return (
