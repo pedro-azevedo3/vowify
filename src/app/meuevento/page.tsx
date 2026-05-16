@@ -107,6 +107,9 @@ const STATUS_META = {
 const COL = "2fr 1.4fr 1fr 1fr 0.5fr 32px";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
+const buildWhen = (date: string, time: string) =>
+  date && time ? `${date} · ${time}` : date || time || "";
+
 const toSlug = (name: string, id: string) =>
   name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
   + "-" + id.slice(0, 8);
@@ -196,7 +199,7 @@ export default function MinhaFestaPage() {
             .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName }).select().single();
           if (created) {
             setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
-            setSidebarEvents([{ id: created.id, name: created.name, when: `${created.date} · ${created.time}` }]);
+            setSidebarEvents([{ id: created.id, name: created.name, when: buildWhen(created.date, created.time) }]);
             setActiveEventId(created.id);
             firstId = created.id;
           }
@@ -206,7 +209,7 @@ export default function MinhaFestaPage() {
           data.forEach(row => {
             const orgName = row.organizer_name || displayName;
             mapped[row.id] = { ...mapFromDb(row), organizerName: orgName, guests: [] };
-            sidebar.push({ id: row.id, name: row.name, when: `${row.date} · ${row.time}` });
+            sidebar.push({ id: row.id, name: row.name, when: buildWhen(row.date, row.time) });
           });
           setEventsData(mapped);
           setSidebarEvents(sidebar);
@@ -598,7 +601,7 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
             <Pill bg="#e6f7ee" color="#0f6b32" border="rgba(22,163,74,.18)">
               <span style={{ width: 6, height: 6, borderRadius: 999, background: "#16a34a", display: "inline-block" }} /> Evento ativo
             </Pill>
-            <span style={{ fontSize: 12, color: "var(--vw-t3)" }}>{eventInfo.date} · {eventInfo.time}</span>
+            {buildWhen(eventInfo.date, eventInfo.time) && <span style={{ fontSize: 12, color: "var(--vw-t3)" }}>{buildWhen(eventInfo.date, eventInfo.time)}</span>}
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--vw-t1)", margin: 0 }}>{eventName}</h1>
         </div>
@@ -1107,7 +1110,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
             {/* Live preview */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, position: "sticky", top: 20 }}>
               <span style={{ fontSize: 11, fontWeight: 600, color: "var(--vw-t4)", textTransform: "uppercase", letterSpacing: ".06em" }}>Preview</span>
-              <InvitePreview gradient={theme.gradient} fontFamily={font.family} eventName={eventName} eventWhen={`${eventInfo.date} · ${eventInfo.time}`} eventLocation={eventInfo.location} />
+              <InvitePreview gradient={theme.gradient} fontFamily={font.family} eventName={eventName} eventWhen={buildWhen(eventInfo.date, eventInfo.time)} eventLocation={eventInfo.location} />
             </div>
           </div>
           <div style={{ height: 1, background: "var(--vw-border)", margin: "24px 0" }} />
