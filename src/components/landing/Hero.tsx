@@ -5,7 +5,7 @@ import { Avatar, Donut } from "./shared";
 
 export function Hero() {
   return (
-    <section className="relative pt-[68px] overflow-hidden bg-white">
+    <section className="relative pt-[68px] overflow-hidden" style={{ background: "var(--lp-bg)" }}>
       <div className="max-w-[1280px] mx-auto px-6 sm:px-8 lg:px-14 pt-10 pb-16 lg:pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-14 items-center">
 
@@ -16,7 +16,7 @@ export function Hero() {
               style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 500,
-                background: "#fff", border: "1px solid #ece7f5", color: "#2a2440",
+                background: "var(--lp-card)", border: "1px solid var(--lp-border)", color: "var(--lp-t2)",
                 marginBottom: 24, boxShadow: "0 1px 2px rgba(15,11,30,.04)",
               }}
             >
@@ -28,7 +28,7 @@ export function Hero() {
               className="vw-anim-up d-80 text-[40px] sm:text-[52px] lg:text-[64px]"
               style={{
                 lineHeight: 1.02, letterSpacing: "-0.035em", fontWeight: 600,
-                margin: "0 0 24px", color: "#0f0b1e",
+                margin: "0 0 24px", color: "var(--lp-t1)",
               }}
             >
               Convide, confirme,
@@ -38,7 +38,7 @@ export function Hero() {
 
             <p
               className="vw-anim-up d-160 text-base sm:text-lg lg:text-[19px]"
-              style={{ lineHeight: 1.5, color: "#6e6880", margin: "0 0 32px", maxWidth: 520 }}
+              style={{ lineHeight: 1.5, color: "var(--lp-t3)", margin: "0 0 32px", maxWidth: 520 }}
             >
               A Vowify envia convites por WhatsApp, coleta o RSVP
               automaticamente e mostra em um painel quem confirmou, quem falta e
@@ -64,12 +64,12 @@ export function Hero() {
                 href="/convite/exemplo"
                 style={{
                   height: 48, padding: "0 22px", borderRadius: 12,
-                  border: "1px solid #ece7f5", fontSize: 15, fontWeight: 500,
-                  color: "#0f0b1e", background: "transparent", cursor: "pointer",
+                  border: "1px solid var(--lp-border)", fontSize: 15, fontWeight: 500,
+                  color: "var(--lp-t1)", background: "transparent", cursor: "pointer",
                   transition: "background .12s", display: "inline-flex",
                   alignItems: "center", textDecoration: "none",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#faf7ff")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--lp-bg2)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 Ver um exemplo
@@ -78,7 +78,7 @@ export function Hero() {
 
             <div className="vw-anim-up d-320 flex flex-wrap gap-x-6 gap-y-2">
               {["Sem mensalidade", "Link e QR Code prontos", "CRM incluído"].map((item) => (
-                <span key={item} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#6e6880" }}>
+                <span key={item} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--lp-t3)" }}>
                   <CheckIcon />
                   {item}
                 </span>
@@ -123,8 +123,8 @@ function HeroVisual() {
       >
         <Avatar name="Marina Castro" size={32} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: "#0f0b1e" }}>Marina confirmou</div>
-          <div style={{ fontSize: 11, color: "#6e6880" }}>há 2 minutos · + 1 acompanhante</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "var(--lp-t1)" }}>Marina confirmou</div>
+          <div style={{ fontSize: 11, color: "var(--lp-t3)" }}>há 2 minutos · + 1 acompanhante</div>
         </div>
         <span style={{ width: 22, height: 22, borderRadius: 999, background: "#e6f7ee", color: "#16a34a", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
           <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
@@ -169,11 +169,11 @@ function HeroVisual() {
         }}
       >
         <Donut size={56} stroke={8} segments={[{ value: 38, color: "#b14eff" }, { value: 22, color: "#f59e0b" }, { value: 6, color: "#e1124e" }]}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "#0f0b1e" }}>58%</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--lp-t1)" }}>58%</span>
         </Donut>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 500, color: "#0f0b1e" }}>38 de 66 confirmados</div>
-          <div style={{ fontSize: 11, color: "#6e6880" }}>22 pendentes · 6 ausentes</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: "var(--lp-t1)" }}>38 de 66 confirmados</div>
+          <div style={{ fontSize: 11, color: "var(--lp-t3)" }}>22 pendentes · 6 ausentes</div>
         </div>
       </div>
     </div>

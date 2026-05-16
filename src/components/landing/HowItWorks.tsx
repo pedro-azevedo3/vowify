@@ -33,7 +33,7 @@ export function HowItWorks() {
         <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase" as const, color: "#b14eff" }}>
           Como funciona
         </span>
-        <h2 className="text-[30px] sm:text-[38px] lg:text-[44px]" style={{ lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, marginTop: 12, color: "#0f0b1e" }}>
+        <h2 className="text-[30px] sm:text-[38px] lg:text-[44px]" style={{ lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, marginTop: 12, color: "var(--lp-t1)" }}>
           Três passos do convite ao &ldquo;quem chega&rdquo;.
         </h2>
       </div>
@@ -45,12 +45,12 @@ export function HowItWorks() {
             className={`vw-card vw-card-interactive ${inView ? `vw-anim-up d-${i * 120}` : "vw-hidden"}`}
             style={{ padding: 28, display: "flex", flexDirection: "column" }}
           >
-            <div style={{ height: 200, marginBottom: 20, background: "linear-gradient(135deg,#ffe5ee 0%,#f1e1ff 60%,#e8dcff 100%)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+            <div style={{ height: 200, marginBottom: 20, background: "var(--lp-step-vis)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
               {s.vis}
             </div>
             <div style={{ fontSize: 12, color: "#b14eff", marginBottom: 8, fontFamily: "var(--font-geist-mono), monospace", fontWeight: 500 }}>{s.n}</div>
-            <h3 style={{ fontSize: 22, lineHeight: 1.2, letterSpacing: "-0.02em", fontWeight: 600, margin: "0 0 8px", color: "#0f0b1e" }}>{s.t}</h3>
-            <p style={{ fontSize: 14, color: "#6e6880", lineHeight: 1.55, margin: 0 }}>{s.d}</p>
+            <h3 style={{ fontSize: 22, lineHeight: 1.2, letterSpacing: "-0.02em", fontWeight: 600, margin: "0 0 8px", color: "var(--lp-t1)" }}>{s.t}</h3>
+            <p style={{ fontSize: 14, color: "var(--lp-t3)", lineHeight: 1.55, margin: 0 }}>{s.d}</p>
           </div>
         ))}
       </div>
@@ -70,7 +70,7 @@ function CustomizeVis({ animate }: { animate: boolean }) {
       {/* Colour swatches */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
         {palettes.map((g, i) => (
-          <div key={i} style={{ height: 28, borderRadius: 7, background: g, border: i === 0 ? "2.5px solid #0f0b1e" : "2px solid transparent", boxShadow: i === 0 ? "0 0 0 2px #fff inset" : "none" }} />
+          <div key={i} style={{ height: 28, borderRadius: 7, background: g, border: i === 0 ? "2.5px solid var(--lp-t1)" : "2px solid transparent", boxShadow: i === 0 ? "0 0 0 2px var(--lp-card) inset" : "none" }} />
         ))}
       </div>
       {/* Font rows */}
@@ -79,8 +79,8 @@ function CustomizeVis({ animate }: { animate: boolean }) {
         { label: "Poppins",   active: false },
         { label: "Inter",     active: false },
       ].map(({ label, active }) => (
-        <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", borderRadius: 8, background: active ? "#faf7ff" : "#fff", border: active ? "1.5px solid #b14eff" : "1px solid #ece7f5" }}>
-          <span style={{ fontSize: 12, color: "#0f0b1e", fontWeight: active ? 600 : 400 }}>{label}</span>
+        <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", borderRadius: 8, background: active ? "var(--lp-bg2)" : "var(--lp-card)", border: active ? "1.5px solid #b14eff" : "1px solid var(--lp-border)" }}>
+          <span style={{ fontSize: 12, color: "var(--lp-t1)", fontWeight: active ? 600 : 400 }}>{label}</span>
           {active && <span style={{ width: 14, height: 14, borderRadius: 999, background: "#b14eff", display: "flex", alignItems: "center", justifyContent: "center" }}><svg viewBox="0 0 10 10" width="8" height="8" fill="none"><path d="M2 5.5l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>}
         </div>
       ))}
@@ -112,8 +112,8 @@ function ShareVis({ animate }: { animate: boolean }) {
 function DonutVis({ animate }: { animate: boolean }) {
   return (
     <Donut size={140} stroke={18} animate={animate} segments={[{ value: 42, color: "#b14eff" }, { value: 18, color: "#f59e0b" }, { value: 6, color: "#e1124e" }]}>
-      <span style={{ fontSize: 22, fontWeight: 600, color: "#0f0b1e", opacity: animate ? 1 : 0, transition: "opacity 0.4s ease 0.65s" }}>64%</span>
-      <span style={{ fontSize: 10, color: "#6e6880", opacity: animate ? 1 : 0, transition: "opacity 0.4s ease 0.75s" }}>confirmados</span>
+      <span style={{ fontSize: 22, fontWeight: 600, color: "var(--lp-t1)", opacity: animate ? 1 : 0, transition: "opacity 0.4s ease 0.65s" }}>64%</span>
+      <span style={{ fontSize: 10, color: "var(--lp-t3)", opacity: animate ? 1 : 0, transition: "opacity 0.4s ease 0.75s" }}>confirmados</span>
     </Donut>
   );
 }

@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { useLandingTheme } from "./LandingProvider";
 
 const navLinks = [
   { href: "#como-funciona", label: "Como funciona" },
@@ -16,6 +17,7 @@ const navLinks = [
 ];
 
 export function Navbar() {
+  const { dark, toggle } = useLandingTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -80,13 +82,13 @@ export function Navbar() {
   }, [loginOpen, registerOpen, mobileOpen]);
 
   return (
-    <header ref={navRef}
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-white/90 backdrop-blur-xl border-b border-[#ece7f5] shadow-sm"
-          : "bg-transparent"
-      )}
+    <header
+      ref={navRef}
+      className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300", isScrolled ? "backdrop-blur-xl shadow-sm" : "")}
+      style={{
+        background: isScrolled ? "var(--lp-navbar-scrolled)" : "transparent",
+        borderBottom: isScrolled ? "1px solid var(--lp-border)" : "none",
+      }}
     >
       <nav className="max-w-[1280px] mx-auto px-6 sm:px-8 lg:px-14">
         <div className="flex items-center justify-between h-[68px]">
@@ -94,13 +96,20 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
             <Image src="/logo.png" alt="Vowify" width={28} height={28} style={{ borderRadius: 8 }} priority />
-            <span className="font-extrabold text-xl tracking-tight text-[#0f0b1e]">Vowify</span>
+            <span className="font-extrabold text-xl tracking-tight" style={{ color: "var(--lp-t1)" }}>Vowify</span>
           </Link>
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="text-sm font-medium text-[#2a2440] hover:text-[#0f0b1e] transition-colors cursor-pointer">
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium transition-colors cursor-pointer"
+                style={{ color: "var(--lp-t2)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--lp-t1)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "var(--lp-t2)")}
+              >
                 {link.label}
               </a>
             ))}
@@ -109,15 +118,27 @@ export function Navbar() {
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-2">
 
+            {/* Dark mode toggle */}
+            <button
+              onClick={toggle}
+              aria-label={dark ? "Modo claro" : "Modo escuro"}
+              className="h-8 w-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
+              style={{ background: "transparent", border: "1px solid var(--lp-border)", color: "var(--lp-t3)" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "var(--lp-bg2)"; e.currentTarget.style.color = "var(--lp-t1)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--lp-t3)"; }}
+            >
+              {dark ? <SunIcon /> : <MoonIcon />}
+            </button>
+
             {/* ── Login dropdown ── */}
             <div ref={loginRef} style={{ position: "relative" }}>
               <button
                 onClick={() => { setLoginOpen((o) => !o); setRegisterOpen(false); }}
                 className="h-8 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer"
                 style={{
-                  border: loginOpen ? "1px solid #b14eff" : "1px solid #ece7f5",
-                  color: loginOpen ? "#b14eff" : "#0f0b1e",
-                  background: loginOpen ? "#faf7ff" : "transparent",
+                  border: loginOpen ? "1px solid #b14eff" : "1px solid var(--lp-border)",
+                  color: loginOpen ? "#b14eff" : "var(--lp-t1)",
+                  background: loginOpen ? "var(--lp-bg2)" : "transparent",
                   boxShadow: loginOpen ? "0 0 0 3px rgba(177,78,255,.12)" : "none",
                 }}
               >
@@ -158,7 +179,10 @@ export function Navbar() {
 
           {/* Mobile toggle */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-[#f4f0fa] transition-colors cursor-pointer"
+            className="md:hidden p-2 rounded-lg transition-colors cursor-pointer"
+            style={{ color: "var(--lp-t1)" }}
+            onMouseEnter={e => (e.currentTarget.style.background = "var(--lp-bg2)")}
+            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
           >
@@ -168,20 +192,43 @@ export function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden pb-4 border-t border-[#ece7f5] bg-white rounded-b-2xl -mx-6 sm:-mx-8 px-6 sm:px-8">
+          <div
+            className="md:hidden pb-4 -mx-6 sm:-mx-8 px-6 sm:px-8 rounded-b-2xl"
+            style={{ borderTop: "1px solid var(--lp-border)", background: "var(--lp-card)" }}
+          >
             <div className="flex flex-col gap-4 pt-4">
               {navLinks.map((link) => (
-                <a key={link.href} href={link.href} className="text-sm font-medium text-[#2a2440] hover:text-[#0f0b1e] transition-colors cursor-pointer" onClick={() => setMobileOpen(false)}>
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium transition-colors cursor-pointer"
+                  style={{ color: "var(--lp-t2)" }}
+                  onClick={() => setMobileOpen(false)}
+                >
                   {link.label}
                 </a>
               ))}
 
-              <div className="flex flex-col gap-2 pt-2 border-t border-[#ece7f5]">
+              <div className="flex flex-col gap-2 pt-2" style={{ borderTop: "1px solid var(--lp-border)" }}>
+                {/* Dark toggle (mobile) */}
+                <button
+                  onClick={toggle}
+                  className="h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all flex items-center gap-2"
+                  style={{ border: "1px solid var(--lp-border)", color: "var(--lp-t2)", background: "transparent" }}
+                >
+                  {dark ? <SunIcon /> : <MoonIcon />}
+                  {dark ? "Modo claro" : "Modo escuro"}
+                </button>
+
                 {/* Entrar */}
                 <button
                   onClick={() => setMobileForm((f) => f === "login" ? null : "login")}
                   className="h-9 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all"
-                  style={{ border: mobileForm === "login" ? "1px solid #b14eff" : "1px solid #ece7f5", color: mobileForm === "login" ? "#b14eff" : "#0f0b1e", background: mobileForm === "login" ? "#faf7ff" : "transparent" }}
+                  style={{
+                    border: mobileForm === "login" ? "1px solid #b14eff" : "1px solid var(--lp-border)",
+                    color: mobileForm === "login" ? "#b14eff" : "var(--lp-t1)",
+                    background: mobileForm === "login" ? "var(--lp-bg2)" : "transparent",
+                  }}
                 >
                   {mobileForm === "login" ? "Fechar" : "Entrar"}
                 </button>
@@ -214,8 +261,8 @@ export function Navbar() {
 // ── Shared input style ─────────────────────────────────────────────────────
 const inputCss: React.CSSProperties = {
   height: 40, padding: "0 12px", borderRadius: 10,
-  border: "1px solid #ece7f5", fontSize: 14, color: "#0f0b1e",
-  fontFamily: "inherit", outline: "none", background: "#fff",
+  border: "1px solid var(--lp-input-border)", fontSize: 14, color: "var(--lp-t1)",
+  fontFamily: "inherit", outline: "none", background: "var(--lp-input-bg)",
   transition: "border .15s, box-shadow .15s", width: "100%", boxSizing: "border-box",
 };
 
@@ -224,7 +271,7 @@ const inputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
   e.currentTarget.style.boxShadow = "0 0 0 3px rgba(177,78,255,.12)";
 };
 const inputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-  e.currentTarget.style.border = "1px solid #ece7f5";
+  e.currentTarget.style.border = "1px solid var(--lp-input-border)";
   e.currentTarget.style.boxShadow = "none";
 };
 
@@ -283,20 +330,20 @@ function AuthDropdown({ mode, onSwitch }: { mode: "login" | "register"; onSwitch
   const { name, setName, email, setEmail, password, setPassword, confirm, setConfirm, loading, error, done, submit } = useAuthForm(mode);
 
   if (done) return (
-    <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 320, background: "#fff", borderRadius: 16, border: "1px solid #ece7f5", boxShadow: "0 4px 6px rgba(15,11,30,.04), 0 20px 50px rgba(122,58,255,.12)", padding: 24, textAlign: "center" }}>
+    <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 320, background: "var(--lp-card)", borderRadius: 16, border: "1px solid var(--lp-border)", boxShadow: "0 4px 6px rgba(15,11,30,.04), 0 20px 50px rgba(122,58,255,.12)", padding: 24, textAlign: "center" }}>
       <div style={{ fontSize: 32, marginBottom: 12 }}>🎉</div>
-      <h3 style={{ fontSize: 16, fontWeight: 600, color: "#0f0b1e", margin: "0 0 8px" }}>Verifique seu e-mail</h3>
-      <p style={{ fontSize: 13, color: "#6e6880", margin: 0 }}>Enviamos um link de confirmação para <strong>{email}</strong>. Confirme para acessar sua conta.</p>
+      <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--lp-t1)", margin: "0 0 8px" }}>Verifique seu e-mail</h3>
+      <p style={{ fontSize: 13, color: "var(--lp-t3)", margin: 0 }}>Enviamos um link de confirmação para <strong>{email}</strong>. Confirme para acessar sua conta.</p>
     </div>
   );
 
   return (
-    <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 320, background: "#fff", borderRadius: 16, border: "1px solid #ece7f5", boxShadow: "0 4px 6px rgba(15,11,30,.04), 0 20px 50px rgba(122,58,255,.12)", padding: 24, animation: "vwDropdown 0.2s cubic-bezier(0.22,1,0.36,1)", zIndex: 100 }}>
+    <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 320, background: "var(--lp-card)", borderRadius: 16, border: "1px solid var(--lp-border)", boxShadow: "0 4px 6px rgba(15,11,30,.04), 0 20px 50px rgba(122,58,255,.12)", padding: 24, animation: "vwDropdown 0.2s cubic-bezier(0.22,1,0.36,1)", zIndex: 100 }}>
       <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: "#0f0b1e", margin: "0 0 4px" }}>
+        <h3 style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--lp-t1)", margin: "0 0 4px" }}>
           {isRegister ? "Criar sua conta" : "Bem-vindo de volta"}
         </h3>
-        <p style={{ fontSize: 13, color: "#6e6880", margin: 0 }}>
+        <p style={{ fontSize: 13, color: "var(--lp-t3)", margin: 0 }}>
           {isRegister ? "Crie eventos e gerencie confirmações." : "Entre para gerenciar seus eventos."}
         </p>
       </div>
@@ -330,14 +377,14 @@ function AuthDropdown({ mode, onSwitch }: { mode: "login" | "register"; onSwitch
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
-        <div style={{ flex: 1, height: 1, background: "#ece7f5" }} />
-        <span style={{ fontSize: 12, color: "#9994ac" }}>ou</span>
-        <div style={{ flex: 1, height: 1, background: "#ece7f5" }} />
+        <div style={{ flex: 1, height: 1, background: "var(--lp-border)" }} />
+        <span style={{ fontSize: 12, color: "var(--lp-t4)" }}>ou</span>
+        <div style={{ flex: 1, height: 1, background: "var(--lp-border)" }} />
       </div>
 
       <GoogleButton />
 
-      <p style={{ fontSize: 13, color: "#6e6880", textAlign: "center", margin: "16px 0 0" }}>
+      <p style={{ fontSize: 13, color: "var(--lp-t3)", textAlign: "center", margin: "16px 0 0" }}>
         {isRegister ? "Já tem conta? " : "Ainda não tem conta? "}
         <button onClick={onSwitch} style={{ color: "#b14eff", fontWeight: 500, background: "none", border: "none", cursor: "pointer", fontSize: 13, fontFamily: "inherit", padding: 0 }}>
           {isRegister ? "Entrar →" : "Criar conta grátis →"}
@@ -361,7 +408,7 @@ function MobileAuthForm({ mode, onSwitch }: { mode: "login" | "register"; onSwit
   );
 
   return (
-    <div style={{ background: "#faf7ff", borderRadius: 12, border: "1px solid #ece7f5", padding: 16, display: "flex", flexDirection: "column", gap: 10, animation: "vwDropdown 0.2s cubic-bezier(0.22,1,0.36,1)" }}>
+    <div style={{ background: "var(--lp-bg2)", borderRadius: 12, border: "1px solid var(--lp-border)", padding: 16, display: "flex", flexDirection: "column", gap: 10, animation: "vwDropdown 0.2s cubic-bezier(0.22,1,0.36,1)" }}>
       {isRegister && (
         <Field label="Nome completo">
           <input type="text" placeholder="Seu nome completo" autoComplete="name" value={name} onChange={e => setName(e.target.value)} style={inputCss} onFocus={inputFocus} onBlur={inputBlur} />
@@ -388,7 +435,7 @@ function MobileAuthForm({ mode, onSwitch }: { mode: "login" | "register"; onSwit
 
       <GoogleButton />
 
-      <p style={{ fontSize: 12, color: "#6e6880", textAlign: "center", margin: 0 }}>
+      <p style={{ fontSize: 12, color: "var(--lp-t3)", textAlign: "center", margin: 0 }}>
         {isRegister ? "Já tem conta? " : "Sem conta? "}
         <button onClick={onSwitch} style={{ color: "#b14eff", fontWeight: 500, background: "none", border: "none", cursor: "pointer", fontSize: 12, fontFamily: "inherit", padding: 0 }}>
           {isRegister ? "Entrar →" : "Criar grátis →"}
@@ -409,9 +456,9 @@ function GoogleButton() {
   return (
     <button
       onClick={handleGoogle}
-      style={{ height: 40, borderRadius: 10, border: "1px solid #ece7f5", fontSize: 14, fontWeight: 500, color: "#0f0b1e", cursor: "pointer", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", width: "100%", transition: "background .12s" }}
-      onMouseEnter={e => (e.currentTarget.style.background = "#faf7ff")}
-      onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
+      style={{ height: 40, borderRadius: 10, border: "1px solid var(--lp-border)", fontSize: 14, fontWeight: 500, color: "var(--lp-t1)", cursor: "pointer", background: "var(--lp-card)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "inherit", width: "100%", transition: "background .12s" }}
+      onMouseEnter={e => (e.currentTarget.style.background = "var(--lp-bg2)")}
+      onMouseLeave={e => (e.currentTarget.style.background = "var(--lp-card)")}
     >
       <svg width="18" height="18" viewBox="0 0 18 18">
         <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
@@ -429,7 +476,7 @@ function Field({ label, right, children }: { label: string; right?: React.ReactN
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <label style={{ fontSize: 11, fontWeight: 500, color: "#6e6880", textTransform: "uppercase", letterSpacing: ".04em" }}>{label}</label>
+        <label style={{ fontSize: 11, fontWeight: 500, color: "var(--lp-t3)", textTransform: "uppercase", letterSpacing: ".04em" }}>{label}</label>
         {right}
       </div>
       {children}
@@ -467,7 +514,7 @@ function PasswordInput({ show, onToggle, value, onChange, autoComplete, placehol
         onFocus={inputFocus}
         onBlur={inputBlur}
       />
-      <button type="button" onClick={onToggle} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9994ac", padding: 2, display: "flex", alignItems: "center" }}>
+      <button type="button" onClick={onToggle} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--lp-t4)", padding: 2, display: "flex", alignItems: "center" }}>
         {show ? <EyeOffIcon /> : <EyeIcon />}
       </button>
     </div>
@@ -479,4 +526,10 @@ function EyeIcon() {
 }
 function EyeOffIcon() {
   return <svg viewBox="0 0 16 16" width="15" height="15" fill="none"><path d="M2 2l12 12M6.5 6.6A2 2 0 0010 10M4.5 4.6C2.9 5.7 1.5 7.5 1.5 8s2 4.5 6.5 4.5c1.2 0 2.2-.3 3.1-.7M7 3.6C7.3 3.5 7.7 3.5 8 3.5c4.5 0 6.5 4 6.5 4.5 0 .3-.4 1-1.1 1.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" /></svg>;
+}
+function MoonIcon() {
+  return <svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>;
+}
+function SunIcon() {
+  return <svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor"><path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd"/></svg>;
 }

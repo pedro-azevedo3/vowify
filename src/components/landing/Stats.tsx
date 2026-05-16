@@ -26,12 +26,12 @@ export function Stats() {
               className={`${inView ? `vw-anim-up d-${i * 80 + 80}` : "vw-hidden"} flex flex-col items-center text-center`}
               style={{
                 padding: "16px 20px",
-                borderRight: i % 2 === 0 ? "1px solid #ece7f5" : "none",
-                borderBottom: i < 2 ? "1px solid #ece7f5" : "none",
+                borderRight: i % 2 === 0 ? "1px solid var(--lp-border)" : "none",
+                borderBottom: i < 2 ? "1px solid var(--lp-border)" : "none",
               }}
             >
-              <div style={{ fontSize: 26, lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, marginBottom: 4, color: "#0f0b1e" }}>{n}</div>
-              <div style={{ fontSize: 12, color: "#6e6880" }}>{l}</div>
+              <div style={{ fontSize: 26, lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, marginBottom: 4, color: "var(--lp-t1)" }}>{n}</div>
+              <div style={{ fontSize: 12, color: "var(--lp-t3)" }}>{l}</div>
             </div>
           ))}
         </div>

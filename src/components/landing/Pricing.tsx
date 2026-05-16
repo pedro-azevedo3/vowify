@@ -20,15 +20,14 @@ export function Pricing() {
         <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase" as const, color: "#b14eff" }}>
           Preço
         </span>
-        <h2 style={{ fontSize: 44, lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, margin: "12px 0 12px", color: "#0f0b1e" }}>
+        <h2 style={{ fontSize: 44, lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, margin: "12px 0 12px", color: "var(--lp-t1)" }}>
           Um plano. Uma festa. Um preço.
         </h2>
-        <p style={{ fontSize: 16, color: "#6e6880", maxWidth: 560, margin: "0 auto 36px", lineHeight: 1.55 }}>
+        <p style={{ fontSize: 16, color: "var(--lp-t3)", maxWidth: 560, margin: "0 auto 36px", lineHeight: 1.55 }}>
           Sem mensalidade, sem upgrade escondido. Você paga uma vez e o evento fica ativo até o dia seguinte da festa.
         </p>
       </div>
 
-      {/* Wrapper externo: hover + sombra. Elemento interno: só animação de entrada. */}
       <div
         style={{
           maxWidth: 460,

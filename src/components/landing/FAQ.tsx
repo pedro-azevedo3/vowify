@@ -27,11 +27,11 @@ export function FAQ() {
           <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase" as const, color: "#b14eff" }}>FAQ</span>
           <h2
             className="text-[24px] sm:text-[28px] lg:text-[32px]"
-            style={{ lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, marginTop: 12, color: "#0f0b1e" }}
+            style={{ lineHeight: 1.1, letterSpacing: "-0.025em", fontWeight: 600, marginTop: 12, color: "var(--lp-t1)" }}
           >
             Perguntas que aparecem antes da festa.
           </h2>
-          <p style={{ fontSize: 15, color: "#6e6880", lineHeight: 1.6, marginTop: 16 }}>
+          <p style={{ fontSize: 15, color: "var(--lp-t3)", lineHeight: 1.6, marginTop: 16 }}>
             Ainda tem dúvidas? Fale com a gente pelo WhatsApp — respondemos na hora.
           </p>
         </div>
@@ -44,26 +44,26 @@ export function FAQ() {
               <div
                 key={i}
                 className={inView ? `vw-anim-up d-${Math.min(i * 60, 400)}` : "vw-hidden"}
-                style={{ borderTop: "1px solid #ece7f5" }}
+                style={{ borderTop: "1px solid var(--lp-border)" }}
               >
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
                   style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 24, padding: "20px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
                 >
-                  <span style={{ fontSize: 16, fontWeight: 500, color: "#0f0b1e", lineHeight: 1.4 }}>{q}</span>
-                  <span style={{ flexShrink: 0, marginTop: 2, width: 22, height: 22, borderRadius: 999, background: isOpen ? "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)" : "#f4f0fa", display: "inline-flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s", color: isOpen ? "#fff" : "#6e6880" }}>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: "var(--lp-t1)", lineHeight: 1.4 }}>{q}</span>
+                  <span style={{ flexShrink: 0, marginTop: 2, width: 22, height: 22, borderRadius: 999, background: isOpen ? "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)" : "var(--lp-border2)", display: "inline-flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s", color: isOpen ? "#fff" : "var(--lp-t3)" }}>
                     <svg viewBox="0 0 16 16" width="12" height="12" fill="none">
                       {isOpen ? <path d="M3 8h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /> : <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />}
                     </svg>
                   </span>
                 </button>
                 <div style={{ overflow: "hidden", maxHeight: isOpen ? 300 : 0, transition: "max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1)" }}>
-                  <p style={{ fontSize: 14, color: "#6e6880", lineHeight: 1.65, paddingBottom: 20, margin: 0 }}>{a}</p>
+                  <p style={{ fontSize: 14, color: "var(--lp-t3)", lineHeight: 1.65, paddingBottom: 20, margin: 0 }}>{a}</p>
                 </div>
               </div>
             );
           })}
-          <div style={{ borderTop: "1px solid #ece7f5" }} />
+          <div style={{ borderTop: "1px solid var(--lp-border)" }} />
         </div>
       </div>
     </section>
