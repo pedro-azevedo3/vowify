@@ -30,7 +30,7 @@ export function Features() {
             <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 12 }}>
               {["Donut em tempo real (confirmados · pendentes · ausentes)", "Lista com filtro e busca", "Timeline das confirmações", "Exportar CSV ou PDF"].map((f) => (
                 <li key={f} style={{ display: "flex", gap: 10, alignItems: "center", fontSize: 14, color: "var(--lp-t2)" }}>
-                  <span style={{ width: 20, height: 20, borderRadius: 999, background: "linear-gradient(135deg,#ffe5ee 0%,#f1e1ff 60%,#e8dcff 100%)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#b14eff", flexShrink: 0 }}>
+                  <span style={{ width: 20, height: 20, borderRadius: 999, background: "var(--lp-step-vis)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#b14eff", flexShrink: 0 }}>
                     <svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </span>
                   {f}
@@ -38,7 +38,7 @@ export function Features() {
               ))}
             </ul>
             <button
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 18px", borderRadius: 10, border: "none", fontSize: 14, fontWeight: 500, color: "#fff", background: "var(--lp-t1)", cursor: "pointer", transition: "transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s cubic-bezier(0.22,1,0.36,1), gap 0.2s ease" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 18px", borderRadius: 10, border: "none", fontSize: 14, fontWeight: 500, color: "var(--lp-bg)", background: "var(--lp-t1)", cursor: "pointer", transition: "transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s cubic-bezier(0.22,1,0.36,1), gap 0.2s ease" }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(15,11,30,.25)"; e.currentTarget.style.gap = "12px"; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; e.currentTarget.style.gap = "8px"; }}
             >

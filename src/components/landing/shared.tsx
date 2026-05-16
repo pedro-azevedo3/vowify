@@ -77,7 +77,7 @@ export function Donut({
           r={r}
           fill="none"
           strokeWidth={stroke}
-          stroke="#f4f0fa"
+          stroke="var(--lp-border2)"
         />
         {segments.map((s, i) => {
           const len = (s.value / total) * C;
