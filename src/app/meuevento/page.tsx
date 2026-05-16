@@ -155,6 +155,7 @@ export default function MinhaFestaPage() {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [userName,      setUserName]      = useState("");
   const [userEmail,     setUserEmail]     = useState("");
+  const loadingRef = useRef(false);
   const [dark, setDark] = useState(false);
   useEffect(() => {
     if (localStorage.getItem("vw-dark") === "1") setDark(true);
@@ -184,37 +185,44 @@ export default function MinhaFestaPage() {
 
   useEffect(() => {
     const loadEvents = async (userId: string, displayName: string) => {
-      const { data } = await supabase.from("events").select("*").eq("user_id", userId).order("created_at");
-      let firstId = "";
-      if (!data || data.length === 0) {
-        const { data: created } = await supabase
-          .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName }).select().single();
-        if (created) {
-          setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
-          setSidebarEvents([{ id: created.id, name: created.name, when: `${created.date} · ${created.time}` }]);
-          setActiveEventId(created.id);
-          firstId = created.id;
+      if (loadingRef.current) return;
+      loadingRef.current = true;
+      try {
+        const { data } = await supabase.from("events").select("*").eq("user_id", userId).order("created_at");
+        let firstId = "";
+        if (!data || data.length === 0) {
+          const { data: created } = await supabase
+            .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName }).select().single();
+          if (created) {
+            setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
+            setSidebarEvents([{ id: created.id, name: created.name, when: `${created.date} · ${created.time}` }]);
+            setActiveEventId(created.id);
+            firstId = created.id;
+          }
+        } else {
+          const mapped: Record<string, PerEventState> = {};
+          const sidebar: SidebarEvent[] = [];
+          data.forEach(row => {
+            const orgName = row.organizer_name || displayName;
+            mapped[row.id] = { ...mapFromDb(row), organizerName: orgName, guests: [] };
+            sidebar.push({ id: row.id, name: row.name, when: `${row.date} · ${row.time}` });
+          });
+          setEventsData(mapped);
+          setSidebarEvents(sidebar);
+          const empty = data.filter(r => !r.organizer_name).map(r => r.id);
+          if (empty.length > 0) {
+            supabase.from("events").update({ organizer_name: displayName }).in("id", empty);
+          }
+          setActiveEventId(data[0].id);
+          firstId = data[0].id;
         }
-      } else {
-        const mapped: Record<string, PerEventState> = {};
-        const sidebar: SidebarEvent[] = [];
-        data.forEach(row => {
-          // Se o evento não tem organizer_name, injeta o nome localmente e atualiza no banco
-          const orgName = row.organizer_name || displayName;
-          mapped[row.id] = { ...mapFromDb(row), organizerName: orgName, guests: [] };
-          sidebar.push({ id: row.id, name: row.name, when: `${row.date} · ${row.time}` });
-        });
-        setEventsData(mapped);
-        setSidebarEvents(sidebar);
-        const empty = data.filter(r => !r.organizer_name).map(r => r.id);
-        if (empty.length > 0) {
-          supabase.from("events").update({ organizer_name: displayName }).in("id", empty);
-        }
-        setActiveEventId(data[0].id);
-        firstId = data[0].id;
+        setLoadingEvents(false);
+        if (firstId) loadGuests(firstId);
+      } catch {
+        setLoadingEvents(false);
+      } finally {
+        loadingRef.current = false;
       }
-      setLoadingEvents(false);
-      if (firstId) loadGuests(firstId);
     };
 
     const setFromSession = (session: { user: { id: string; email?: string; user_metadata?: { full_name?: string } } } | null) => {
