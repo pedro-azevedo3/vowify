@@ -1149,7 +1149,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                   Mensagem para WhatsApp
                 </label>
                 {(() => {
-                  const whatsappMsg = `${organizerName ? `${organizerName} está te convidando para ${eventName}` : `Você foi convidado para ${eventName}`}! 🎉\n\nConfirme sua presença em menos de 10 segundos:\n${inviteUrl}`;
+                  const whatsappMsg = `${organizerName ? `${organizerName} está te convidando para ${eventName}` : `Você foi convidado para ${eventName}`}! 🎉\n\nConfirme sua presença, leva menos de 10 segundos:\n${inviteUrl}`;
                   const waLink = `https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`;
                   const [copiedMsg,  setCopiedMsg]  = React.useState(false);
                   const [copiedLink, setCopiedLink] = React.useState(false);
