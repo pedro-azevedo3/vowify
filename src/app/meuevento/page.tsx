@@ -22,7 +22,7 @@ type Status = "confirmed" | "declined";
 type View   = "dashboard" | "messages" | "settings";
 
 // ── Types ─────────────────────────────────────────────────────────────────
-type Guest = { id?: string; name: string; phone: string; status: Status; plus: number; group: string; at: string; restriction?: string };
+type Guest = { id?: string; name: string; phone: string; status: Status; plus: number; group: string; at: string; respondedAt?: string; restriction?: string };
 type SidebarEvent = { id: string; name: string; when: string };
 type InfoSavePayload = {
   name: string; date: string; time: string; location: string; address: string;
@@ -121,6 +121,7 @@ const mapGuestFromDb = (row: any): Guest => ({
   plus: row.plus ?? 0,
   restriction: row.restriction ?? "",
   group: "",
+  respondedAt: row.responded_at ?? undefined,
   at: row.responded_at
     ? new Date(row.responded_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" })
     : "—",
@@ -635,10 +636,22 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
         </div>
 
         {/* 3 stat tiles — 1 col each */}
-        <StatTile eyebrow="Respostas" value={total} suffix={`de ${guestLimit} convidados`}
-          note={<><GreenText>+4</GreenText> nas últimas 24h</>}
-          bars={[3,5,9,7,12,15,9,18,21]} barColor="#b14eff" pct={respondedPct}
-        />
+        {(() => {
+          const cutoff = Date.now() - 4 * 60 * 60 * 1000;
+          const recent = guests.filter(g => {
+            if (!g.respondedAt) return false;
+            const t = new Date(g.respondedAt).getTime();
+            return !isNaN(t) && t >= cutoff;
+          }).length;
+          const recentNote = recent > 0
+            ? <><GreenText>+{recent}</GreenText> nas últimas 4h</>
+            : <span style={{ color: "var(--vw-t4)" }}>Sem novas respostas</span>;
+          return (
+            <StatTile eyebrow="Respostas" value={total} suffix={`de ${guestLimit} convidados`}
+              note={recentNote} barColor="#b14eff" pct={respondedPct}
+            />
+          );
+        })()}
         <StatTile eyebrow="Acompanhantes" value={companions} suffix="confirmados"
           note={`${confirmedCount + companions} pessoas no total`}
           bars={[1,1,2,1,3,2,3,4]} barColor="#ff4d8d"
