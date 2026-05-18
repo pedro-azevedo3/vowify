@@ -64,7 +64,7 @@ export function Pricing() {
                 <div style={{ fontSize: 48, fontWeight: 600, letterSpacing: "-0.03em", marginTop: 6, color: "#fff", lineHeight: 1 }}>
                   R$ 19<span style={{ fontSize: 24, color: "rgba(255,255,255,.6)" }}>,90</span>
                 </div>
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,.6)", marginTop: 4 }}>por evento · pagamento único</div>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,.6)", marginTop: 4 }}>por evento · pagamento único · válido por 90 dias</div>
               </div>
               <span style={{ display: "inline-flex", alignItems: "center", padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 500, background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", color: "#fff" }}>
                 Mais escolhido
