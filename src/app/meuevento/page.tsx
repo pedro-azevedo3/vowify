@@ -154,6 +154,7 @@ export default function MinhaFestaPage() {
   const [filter,        setFilter]        = useState("all");
   const [query,         setQuery]         = useState("");
   const [sideOpen,      setSideOpen]      = useState(false);
+  const [showNewEvent,  setShowNewEvent]  = useState(false);
   const [isDesktop,     setIsDesktop]     = useState(false);
   const [eventsData,    setEventsData]    = useState<Record<string, PerEventState>>({});
   const [loadingEvents, setLoadingEvents] = useState(true);
@@ -354,6 +355,7 @@ export default function MinhaFestaPage() {
         activeEventId={activeEventId} setActiveEventId={id => { setActiveEventId(id); setView("dashboard"); setFilter("all"); setQuery(""); setSideOpen(false); loadGuests(id); }}
         navItems={navItems} events={sidebarEvents} open={sideOpen} onClose={() => setSideOpen(false)}
         isDesktop={isDesktop} userName={userName} userEmail={userEmail}
+        onNewEvent={() => { setShowNewEvent(true); setSideOpen(false); }}
       />
 
       {/* ── Mobile top bar ── */}
@@ -389,6 +391,31 @@ export default function MinhaFestaPage() {
       </main>
 
       <AppToast />
+
+      {showNewEvent && (
+        <NewEventModal
+          userName={userName}
+          onClose={() => setShowNewEvent(false)}
+          onCreate={async (name) => {
+            const { data: session } = await supabase.auth.getSession();
+            const userId = session.session?.user?.id;
+            if (!userId) return;
+            const orgName = ev?.organizerName || userName;
+            const { data: created } = await supabase
+              .from("events")
+              .insert({ ...DEFAULT_EVENT, name, user_id: userId, organizer_name: orgName })
+              .select()
+              .single();
+            if (!created) return;
+            const newState = { ...mapFromDb(created), organizerName: orgName, guests: [] };
+            setEventsData(prev => ({ ...prev, [created.id]: newState }));
+            setSidebarEvents(prev => [...prev, { id: created.id, name: created.name, when: buildWhen(created.date, created.time) }]);
+            setActiveEventId(created.id);
+            setView("settings");
+            setShowNewEvent(false);
+          }}
+        />
+      )}
     </div>
     </DarkCtx.Provider>
   );
@@ -470,12 +497,13 @@ function UserMenu({ userName, userEmail }: { userName: string; userEmail: string
 }
 
 // ── Sidebar component ──────────────────────────────────────────────────────
-function Sidebar({ view, setView, activeEventId, setActiveEventId, navItems, events, open, onClose, isDesktop, userName, userEmail }: {
+function Sidebar({ view, setView, activeEventId, setActiveEventId, navItems, events, open, onClose, isDesktop, userName, userEmail, onNewEvent }: {
   view: View; setView: (v: View) => void;
   activeEventId: string; setActiveEventId: (id: string) => void;
   navItems: { key: View; label: string; icon: React.ReactNode; disabled?: boolean }[];
   events: SidebarEvent[]; open: boolean; onClose: () => void;
   isDesktop: boolean; userName: string; userEmail: string;
+  onNewEvent: () => void;
 }) {
   const { dark, toggle } = useDark();
   const inner = (
@@ -501,7 +529,7 @@ function Sidebar({ view, setView, activeEventId, setActiveEventId, navItems, eve
       </button>
 
       <button
-        onClick={() => showToast("Criar novo evento — em breve!")}
+        onClick={onNewEvent}
         style={{ height: 36, borderRadius: 10, border: "none", fontSize: 14, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", boxShadow: "0 4px 14px rgba(177,78,255,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit", transition: "opacity .15s" }}
         onMouseEnter={e => (e.currentTarget.style.opacity = ".88")}
         onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
@@ -1480,6 +1508,75 @@ function EventInfoCard({ event, guestLimit, trajeOn, setTrajeOn, acompOn, setAco
           )}
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+// ── New event modal ────────────────────────────────────────────────────────
+function NewEventModal({ onClose, onCreate }: {
+  userName: string;
+  onClose: () => void;
+  onCreate: (name: string) => Promise<void>;
+}) {
+  const [name,    setName]    = useState("");
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const handleSubmit = async () => {
+    const trimmed = name.trim();
+    if (!trimmed || loading) return;
+    setLoading(true);
+    await onCreate(trimmed);
+    setLoading(false);
+  };
+
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ position: "absolute", inset: 0, background: "rgba(15,11,30,.5)", backdropFilter: "blur(4px)" }} />
+      <div style={{ position: "relative", background: "var(--vw-card)", borderRadius: 20, padding: 32, maxWidth: 420, width: "100%", boxShadow: "0 24px 64px rgba(15,11,30,.2)" }}>
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg,#ffe5ee 0%,#f1e1ff 60%,#e8dcff 100%)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+          <PlusIcon />
+        </div>
+
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--vw-t1)", margin: "0 0 8px", letterSpacing: "-0.02em" }}>
+          Novo evento
+        </h2>
+        <p style={{ fontSize: 14, color: "var(--vw-t3)", margin: "0 0 20px", lineHeight: 1.6 }}>
+          Dê um nome ao evento. Você poderá editar todos os detalhes a seguir.
+        </p>
+
+        <input
+          ref={inputRef}
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") handleSubmit(); if (e.key === "Escape") onClose(); }}
+          placeholder="Ex: Aniversário 30 anos da Marina"
+          style={{ width: "100%", height: 44, padding: "0 14px", borderRadius: 10, border: "1.5px solid var(--vw-border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", color: "var(--vw-t1)", background: "var(--vw-input)", marginBottom: 16, transition: "border .15s" }}
+          onFocus={e => (e.currentTarget.style.border = "1.5px solid #b14eff")}
+          onBlur={e => (e.currentTarget.style.border = "1.5px solid var(--vw-border)")}
+        />
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            onClick={onClose}
+            style={{ flex: 1, height: 44, borderRadius: 10, border: "1px solid var(--vw-border)", fontSize: 14, fontWeight: 500, color: "var(--vw-t3)", background: "var(--vw-card)", cursor: "pointer", fontFamily: "inherit" }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!name.trim() || loading}
+            style={{ flex: 1, height: 44, borderRadius: 10, border: "none", fontSize: 14, fontWeight: 600, color: "#fff", background: name.trim() ? "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)" : "var(--vw-border)", cursor: name.trim() ? "pointer" : "not-allowed", fontFamily: "inherit", transition: "background .15s", boxShadow: name.trim() ? "0 4px 14px rgba(177,78,255,.3)" : "none" }}
+          >
+            {loading ? "Criando…" : "Criar evento →"}
+          </button>
+        </div>
       </div>
     </div>
   );
