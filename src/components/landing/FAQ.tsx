@@ -11,6 +11,7 @@ const faqs = [
   { q: "Qual é o limite de convidados?", a: "Sem limite. Você pode enviar o link para quantas pessoas quiser. O plano único de R$ 19,90 cobre convidados ilimitados para o evento." },
   { q: "Posso editar as informações do evento depois de criar?", a: "Sim. Data, horário, local, mensagem e imagem do convite são editáveis a qualquer momento antes da festa. As confirmações já recebidas são mantidas." },
   { q: "Como funciona o lembrete automático?", a: "48 horas antes do evento a Vowify dispara automaticamente uma mensagem para quem ainda não respondeu, com o link direto para confirmar. Você não precisa fazer nada." },
+  { q: "Quanto tempo dura um evento?", a: "Eventos duram 90 dias desde o pagamento, e podem ser reativados por mais 30 dias." },
   { q: "Como recebo o pagamento e qual a garantia?", a: "Aceitamos Pix, cartão de crédito e boleto. Se por qualquer motivo você não ficar satisfeito, devolvemos 100% do valor em até 7 dias após a compra — sem burocracia." },
 ];
 
