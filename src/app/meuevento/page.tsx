@@ -199,7 +199,7 @@ export default function MinhaFestaPage() {
         let firstId = "";
         if (!data || data.length === 0) {
           const { data: created } = await supabase
-            .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName, expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString() }).select().single();
+            .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName, expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() }).select().single();
           if (created) {
             setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
             setSidebarEvents([{ id: created.id, name: created.name, when: buildWhen(created.date, created.time) }]);
@@ -405,7 +405,7 @@ export default function MinhaFestaPage() {
             const orgName = ev?.organizerName || userName;
             const { data: created } = await supabase
               .from("events")
-              .insert({ ...DEFAULT_EVENT, name, user_id: userId, organizer_name: orgName, expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString() })
+              .insert({ ...DEFAULT_EVENT, name, user_id: userId, organizer_name: orgName, expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() })
               .select()
               .single();
             if (!created) return;
@@ -1032,7 +1032,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   })();
   const handleReactivate = async () => {
     setReactivating(true);
-    const newExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+    const newExpiry = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
     await supabase.from("events").update({ expires_at: newExpiry }).eq("id", event.id);
     onReactivate(newExpiry);
     setReactivating(false);
@@ -1656,7 +1656,7 @@ function DeleteEventModal({ eventName, eventId, organizerName, userName, sidebar
             ...DEFAULT_EVENT,
             user_id: userId,
             organizer_name: organizerName || userName,
-            expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
           });
         }
       }
