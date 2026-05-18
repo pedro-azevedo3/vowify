@@ -10,7 +10,6 @@ export function Pricing() {
     "Convite por WhatsApp + QR Code",
     "CRM com filtros e timeline",
     "Exportar CSV/PDF",
-    "Lembrete automático 48h antes",
     "Página do convite responsiva",
   ];
 
