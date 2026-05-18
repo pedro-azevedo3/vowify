@@ -10,13 +10,13 @@ export function LandingProvider({ children }: { children: React.ReactNode }) {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    setDark(localStorage.getItem("lp-dark") === "1");
+    setDark(localStorage.getItem("vw-dark") === "1");
   }, []);
 
   const toggle = () =>
     setDark((d) => {
       const next = !d;
-      localStorage.setItem("lp-dark", next ? "1" : "0");
+      localStorage.setItem("vw-dark", next ? "1" : "0");
       return next;
     });
 

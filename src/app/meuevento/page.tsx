@@ -163,13 +163,11 @@ export default function MinhaFestaPage() {
   const loadingRef = useRef(false);
   const [dark, setDark] = useState(false);
   useEffect(() => {
-    const isDark = localStorage.getItem("vw-dark") === "1" || localStorage.getItem("lp-dark") === "1";
-    if (isDark) setDark(true);
+    if (localStorage.getItem("vw-dark") === "1") setDark(true);
   }, []);
   const toggleDark = () => setDark(d => {
     const next = !d;
     localStorage.setItem("vw-dark", next ? "1" : "0");
-    localStorage.setItem("lp-dark", next ? "1" : "0");
     return next;
   });
 
