@@ -65,7 +65,7 @@ type EventData = {
   name: string; date: string; time: string; location: string; address: string;
   traje_on: boolean; traje_text: string; acomp_on: boolean; restricao_on: boolean;
   msg_on: boolean; msg_text: string; color_id: string; font_id: string;
-  organizer_name: string;
+  organizer_name: string; expires_at: string | null;
 };
 
 // ── Validation ────────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ export default function ConviteClient({ id }: { id: string }) {
     if (!id) return;
     supabase
       .from("events")
-      .select("name,date,time,location,address,traje_on,traje_text,acomp_on,restricao_on,msg_on,msg_text,color_id,font_id,organizer_name")
+      .select("name,date,time,location,address,traje_on,traje_text,acomp_on,restricao_on,msg_on,msg_text,color_id,font_id,organizer_name,expires_at")
       .eq("id", id)
       .single()
       .then(({ data, error }) => {
@@ -120,6 +120,18 @@ export default function ConviteClient({ id }: { id: string }) {
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh", background: "#faf7ff", flexDirection: "column", gap: 12 }}>
       <div style={{ width: 36, height: 36, borderRadius: 999, border: "3px solid #ece7f5", borderTopColor: "#b14eff", animation: "spin 0.8s linear infinite" }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+
+  const isExpired = event.expires_at ? new Date() > new Date(event.expires_at) : false;
+  if (isExpired) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh", fontFamily: "var(--font-bricolage), system-ui, sans-serif", background: "#faf7ff", flexDirection: "column", gap: 16, padding: 24, textAlign: "center" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 20, background: "#fde7ee", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>⏰</div>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f0b1e", margin: 0, letterSpacing: "-0.02em" }}>Convite encerrado</h2>
+      <p style={{ fontSize: 15, color: "#6e6880", margin: 0, maxWidth: 340, lineHeight: 1.6 }}>
+        O período de validade deste convite expirou. Entre em contato com o organizador do evento para mais informações.
+      </p>
+      <Link href="/" style={{ fontSize: 13, color: "#b14eff", textDecoration: "none", marginTop: 8 }}>Criar seu próprio evento →</Link>
     </div>
   );
 

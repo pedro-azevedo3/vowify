@@ -36,6 +36,7 @@ type PerEventState = {
   acompOn: boolean; restricaoOn: boolean; msgOn: boolean; msgText: string;
   colorId: string; fontId: string;
   organizerName: string;
+  expiresAt: string | null;
 };
 
 // ── Data ──────────────────────────────────────────────────────────────────
@@ -65,7 +66,7 @@ const INITIAL_EVENTS_DATA: Record<number, PerEventState> = {
     guestLimit: 80, guests: ALL_GUESTS,
     trajeOn: true, trajeText: "Esporte fino",
     acompOn: true, restricaoOn: true, msgOn: false, msgText: "",
-    colorId: "violet", fontId: "bricolage", organizerName: "",
+    colorId: "violet", fontId: "bricolage", organizerName: "", expiresAt: null,
   },
   2: {
     name: "Casamento J&L", date: "12/09/2026", time: "17:00",
@@ -80,7 +81,7 @@ const INITIAL_EVENTS_DATA: Record<number, PerEventState> = {
     ],
     trajeOn: true, trajeText: "Social",
     acompOn: true, restricaoOn: true, msgOn: false, msgText: "",
-    colorId: "rose", fontId: "playfair", organizerName: "",
+    colorId: "rose", fontId: "playfair", organizerName: "", expiresAt: null,
   },
   3: {
     name: "Confra Velkro", date: "14/12/2026", time: "19:00",
@@ -93,7 +94,7 @@ const INITIAL_EVENTS_DATA: Record<number, PerEventState> = {
     ],
     trajeOn: false, trajeText: "",
     acompOn: false, restricaoOn: false, msgOn: false, msgText: "",
-    colorId: "ocean", fontId: "bricolage", organizerName: "",
+    colorId: "ocean", fontId: "bricolage", organizerName: "", expiresAt: null,
   },
 };
 
@@ -138,6 +139,7 @@ const mapFromDb = (row: any): PerEventState => ({
   acompOn: row.acomp_on, restricaoOn: row.restricao_on ?? true, msgOn: row.msg_on, msgText: row.msg_text,
   colorId: row.color_id, fontId: row.font_id,
   organizerName: row.organizer_name ?? "",
+  expiresAt: row.expires_at ?? null,
 });
 
 const DEFAULT_EVENT = {
@@ -197,7 +199,7 @@ export default function MinhaFestaPage() {
         let firstId = "";
         if (!data || data.length === 0) {
           const { data: created } = await supabase
-            .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName }).select().single();
+            .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName, expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString() }).select().single();
           if (created) {
             setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
             setSidebarEvents([{ id: created.id, name: created.name, when: buildWhen(created.date, created.time) }]);
@@ -387,7 +389,7 @@ export default function MinhaFestaPage() {
         )}
 
         {view === "messages"  && <MessagesView />}
-        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} organizerName={ev.organizerName} userName={userName} sidebarEvents={sidebarEvents} />}
+        {view === "settings"  && <SettingsView event={event} guestLimit={guestLimit} setGuestLimit={setGuestLimit} eventName={eventName} setEventName={setEventName} eventInfo={eventInfo} setEventInfo={setEventInfo} colorId={ev.colorId} setColorId={setColorId} fontId={ev.fontId} setFontId={setFontId} trajeOn={ev.trajeOn} setTrajeOn={setTrajeOn} trajeText={ev.trajeText} setTrajeText={setTrajeText} acompOn={ev.acompOn} setAcompOn={setAcompOn} restricaoOn={ev.restricaoOn} setRestricaoOn={setRestricaoOn} msgOn={ev.msgOn} setMsgOn={setMsgOn} msgText={ev.msgText} setMsgText={setMsgText} onPersistInfo={persistInfo} onPersistAppearance={persistAppearance} organizerName={ev.organizerName} userName={userName} sidebarEvents={sidebarEvents} expiresAt={ev.expiresAt} onReactivate={newExpiry => upd({ expiresAt: newExpiry })} />}
       </main>
 
       <AppToast />
@@ -403,7 +405,7 @@ export default function MinhaFestaPage() {
             const orgName = ev?.organizerName || userName;
             const { data: created } = await supabase
               .from("events")
-              .insert({ ...DEFAULT_EVENT, name, user_id: userId, organizer_name: orgName })
+              .insert({ ...DEFAULT_EVENT, name, user_id: userId, organizer_name: orgName, expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString() })
               .select()
               .single();
             if (!created) return;
@@ -986,10 +988,11 @@ const FONT_OPTIONS = [
 ];
 
 // ── Settings View ──────────────────────────────────────────────────────────
-function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance, organizerName, userName, sidebarEvents }: {
+function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventName, eventInfo, setEventInfo, colorId, setColorId, fontId, setFontId, trajeOn, setTrajeOn, trajeText, setTrajeText, acompOn, setAcompOn, restricaoOn, setRestricaoOn, msgOn, setMsgOn, msgText, setMsgText, onPersistInfo, onPersistAppearance, organizerName, userName, sidebarEvents, expiresAt, onReactivate }: {
   event: { id: string; name: string; when: string }; guestLimit: number; setGuestLimit: (n: number) => void;
   eventName: string; setEventName: (n: string) => void; organizerName: string; userName: string;
   sidebarEvents: SidebarEvent[];
+  expiresAt: string | null; onReactivate: (newExpiry: string) => void;
   eventInfo: { date: string; time: string; location: string; address: string };
   setEventInfo: (v: { date: string; time: string; location: string; address: string }) => void;
   colorId: string; setColorId: (v: string) => void;
@@ -1007,6 +1010,30 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   const [showDelete,    setShowDelete]    = useState(false);
   const [showAllThemes, setShowAllThemes] = useState(false);
   const [showAllFonts,  setShowAllFonts]  = useState(false);
+  const [reactivating,  setReactivating]  = useState(false);
+  const [now,           setNow]           = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 10_000);
+    return () => clearInterval(t);
+  }, []);
+  const expired   = expiresAt ? now > new Date(expiresAt) : false;
+  const expiryLabel = (() => {
+    if (!expiresAt) return null;
+    const diff = new Date(expiresAt).getTime() - now.getTime();
+    if (diff <= 0) return "Expirado";
+    const mins = Math.ceil(diff / 60_000);
+    if (mins < 60) return `Expira em ${mins} min`;
+    const hrs = Math.ceil(diff / 3_600_000);
+    if (hrs < 24) return `Expira em ${hrs} h`;
+    return `Expira em ${Math.ceil(diff / 86_400_000)} dias`;
+  })();
+  const handleReactivate = async () => {
+    setReactivating(true);
+    const newExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+    await supabase.from("events").update({ expires_at: newExpiry }).eq("id", event.id);
+    onReactivate(newExpiry);
+    setReactivating(false);
+  };
   const [draftName,     setDraftName]     = useState(eventName);
   const [draftDate,     setDraftDate]     = useState(eventInfo.date);
   const [draftTime,     setDraftTime]     = useState(eventInfo.time);
@@ -1167,28 +1194,50 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
 
           return (
             <Card>
-              <SectionTitle>Link e QR Code</SectionTitle>
-              <p style={{ fontSize: 14, color: "var(--vw-t3)", margin: "8px 0 16px" }}>Compartilhe o link do convite com os convidados.</p>
-              <div style={{ display: "flex", gap: 8, alignItems: "center", padding: 12, background: "var(--vw-bg)", borderRadius: 10, border: "1px solid var(--vw-border)", marginBottom: 12, maxWidth: 500 }}>
-                <span style={{ fontSize: 13, color: "var(--vw-t2)", flex: 1, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{shortDisplay}</span>
-                <button onClick={handleCopy} style={{ padding: "6px 12px", borderRadius: 8, border: `1px solid ${copied ? "rgba(22,163,74,.3)" : "var(--vw-border)"}`, fontSize: 12, fontWeight: 500, background: copied ? "#e6f7ee" : "var(--vw-card)", cursor: "pointer", fontFamily: "inherit", color: copied ? "#0f6b32" : "var(--vw-t2)", flexShrink: 0, transition: "all .2s" }}>
-                  {copied ? "✓ Copiado!" : "Copiar"}
-                </button>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
+                <SectionTitle>Link e QR Code</SectionTitle>
+                {expiryLabel && (
+                  <span style={{ fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 999, background: expired ? "#fde7ee" : "#e6f7ee", color: expired ? "#e1124e" : "#0f6b32", border: expired ? "1px solid rgba(225,17,78,.2)" : "1px solid rgba(22,163,74,.2)" }}>
+                    {expiryLabel}
+                  </span>
+                )}
               </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-                <a
-                  href={`/convite/${event.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 14px", borderRadius: 9, border: "none", fontSize: 13, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", textDecoration: "none", fontFamily: "inherit" }}
+              <p style={{ fontSize: 14, color: "var(--vw-t3)", margin: "8px 0 16px" }}>
+                {expired ? "O período de validade do convite expirou. Reative para liberar o link novamente." : "Compartilhe o link do convite com os convidados."}
+              </p>
+              {expired ? (
+                <button
+                  onClick={handleReactivate}
+                  disabled={reactivating}
+                  style={{ height: 44, padding: "0 20px", borderRadius: 10, border: "none", fontSize: 14, fontWeight: 600, color: "#fff", cursor: reactivating ? "not-allowed" : "pointer", opacity: reactivating ? 0.7 : 1, background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", boxShadow: "0 4px 14px rgba(177,78,255,.3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 8 }}
                 >
-                  <EyeIcon /> Visualizar seu convite
-                </a>
-                <GhostBtn icon={<DownloadIcon />} onClick={() => showToast("Baixar QR Code — em breve!")}>Baixar QR Code</GhostBtn>
-              </div>
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><path d="M13.5 2.5v4h-4M2.5 13.5v-4h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M13.5 6.5A5.5 5.5 0 1 0 12 11.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                  {reactivating ? "Reativando…" : "Reativar convite"}
+                </button>
+              ) : (
+                <>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", padding: 12, background: "var(--vw-bg)", borderRadius: 10, border: "1px solid var(--vw-border)", marginBottom: 12, maxWidth: 500 }}>
+                    <span style={{ fontSize: 13, color: "var(--vw-t2)", flex: 1, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{shortDisplay}</span>
+                    <button onClick={handleCopy} style={{ padding: "6px 12px", borderRadius: 8, border: `1px solid ${copied ? "rgba(22,163,74,.3)" : "var(--vw-border)"}`, fontSize: 12, fontWeight: 500, background: copied ? "#e6f7ee" : "var(--vw-card)", cursor: "pointer", fontFamily: "inherit", color: copied ? "#0f6b32" : "var(--vw-t2)", flexShrink: 0, transition: "all .2s" }}>
+                      {copied ? "✓ Copiado!" : "Copiar"}
+                    </button>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+                    <a
+                      href={`/convite/${event.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 14px", borderRadius: 9, border: "none", fontSize: 13, fontWeight: 500, color: "#fff", cursor: "pointer", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", textDecoration: "none", fontFamily: "inherit" }}
+                    >
+                      <EyeIcon /> Visualizar seu convite
+                    </a>
+                    <GhostBtn icon={<DownloadIcon />} onClick={() => showToast("Baixar QR Code — em breve!")}>Baixar QR Code</GhostBtn>
+                  </div>
+                </>
+              )}
 
               {/* Mensagem para WhatsApp */}
-              <div style={{ borderTop: "1px solid var(--vw-border)", paddingTop: 16 }}>
+              {!expired && <div style={{ borderTop: "1px solid var(--vw-border)", paddingTop: 16 }}>
                 <label style={{ fontSize: 11, fontWeight: 600, color: "var(--vw-t3)", textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 8 }}>
                   Mensagem para WhatsApp
                 </label>
@@ -1220,7 +1269,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                     </>
                   );
                 })()}
-              </div>
+              </div>}
             </Card>
           );
         })()}
@@ -1607,6 +1656,7 @@ function DeleteEventModal({ eventName, eventId, organizerName, userName, sidebar
             ...DEFAULT_EVENT,
             user_id: userId,
             organizer_name: organizerName || userName,
+            expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
           });
         }
       }
