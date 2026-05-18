@@ -1012,6 +1012,9 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   const [showAllFonts,  setShowAllFonts]  = useState(false);
   const [reactivating,  setReactivating]  = useState(false);
   const [now,           setNow]           = useState(() => new Date());
+  const [copied,        setCopied]        = useState(false);
+  const [copiedMsg,     setCopiedMsg]     = useState(false);
+  const [copiedLink,    setCopiedLink]    = useState(false);
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 10_000);
     return () => clearInterval(t);
@@ -1185,7 +1188,6 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
           const origin = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== "undefined" ? window.location.origin : ""));
           const inviteUrl = `${origin}/convite/${event.id}`;
           const shortDisplay = inviteUrl;
-          const [copied, setCopied] = React.useState(false);
           const handleCopy = () => {
             navigator.clipboard.writeText(inviteUrl);
             setCopied(true);
@@ -1244,8 +1246,6 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                 {(() => {
                   const whatsappMsg = `${organizerName ? `${organizerName} está te convidando para ${eventName}` : `Você foi convidado para ${eventName}`}! 🎉\n\nConfirme sua presença, leva menos de 10 segundos:\n${inviteUrl}`;
                   const waLink = `https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`;
-                  const [copiedMsg,  setCopiedMsg]  = React.useState(false);
-                  const [copiedLink, setCopiedLink] = React.useState(false);
                   return (
                     <>
                       <div style={{ background: "var(--vw-bg)", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "var(--vw-t2)", lineHeight: 1.6, whiteSpace: "pre-wrap", border: "1px solid var(--vw-border)", marginBottom: 8 }}>
