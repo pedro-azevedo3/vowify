@@ -1368,9 +1368,29 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
 }
 
 // ── Invite preview ─────────────────────────────────────────────────────────
+const PREVIEW_FONT_URLS: Record<string, string> = {
+  "'Inter', system-ui, sans-serif":           "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+  "'Poppins', system-ui, sans-serif":         "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap",
+  "'League Spartan', system-ui, sans-serif":  "https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700&display=swap",
+  "'Playfair Display', Georgia, serif":       "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap",
+  "'Cormorant Garamond', Georgia, serif":     "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap",
+  "'Montserrat', system-ui, sans-serif":      "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap",
+  "'Dancing Script', Georgia, cursive":       "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap",
+};
+
 function InvitePreview({ gradient, fontFamily, eventName, eventWhen, eventLocation = "" }: {
   gradient: string; fontFamily: string; eventName: string; eventWhen: string; eventLocation?: string;
 }) {
+  useEffect(() => {
+    const url = PREVIEW_FONT_URLS[fontFamily];
+    if (!url) return;
+    const id = `gfont-preview-${fontFamily.slice(1, fontFamily.indexOf("'", 1))}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id; link.rel = "stylesheet"; link.href = url;
+    document.head.appendChild(link);
+  }, [fontFamily]);
+
   return (
     <div className="vw-preview-reset" style={{ width: 220, borderRadius: 32, background: "#0f0b1e", padding: 5, boxShadow: "0 24px 48px rgba(15,11,30,.25)", flexShrink: 0 }}>
       <div style={{ borderRadius: 27, overflow: "hidden", background: "#fff" }}>
