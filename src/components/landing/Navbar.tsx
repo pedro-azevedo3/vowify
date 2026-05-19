@@ -312,9 +312,8 @@ function useAuthForm(mode: "login" | "register") {
         if (e) { setError(MESSAGES[e.message] ?? e.message); setLoading(false); return; }
         router.push("/meuevento");
       }
-    } catch (err) {
+    } catch {
       setError("Erro inesperado. Tente novamente.");
-      console.error(err);
     }
     setLoading(false);
   };
