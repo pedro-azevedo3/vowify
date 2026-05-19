@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Donut, Avatar } from "@/components/landing/shared";
 import { supabase } from "@/lib/supabase";
 import { downloadEventoPDF, downloadListaPDF } from "./EventoPDF";
+import QRCode from "qrcode";
 
 // ── Dark mode context ──────────────────────────────────────────────────────
 const DarkCtx = React.createContext<{ dark: boolean; toggle: () => void }>({ dark: false, toggle: () => {} });
@@ -1062,11 +1063,14 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   onPersistInfo: (payload: InfoSavePayload) => Promise<void>;
   onPersistAppearance: (colorId: string, fontId: string) => Promise<void>;
 }) {
+  const inviteUrl = `${typeof window !== "undefined" ? (process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin) : (process.env.NEXT_PUBLIC_SITE_URL ?? "")}/convite/${event.id}`;
+
   const [saved,         setSaved]         = useState(false);
   const [showDelete,    setShowDelete]    = useState(false);
   const [showAllThemes, setShowAllThemes] = useState(false);
   const [showAllFonts,  setShowAllFonts]  = useState(false);
   const [reactivating,  setReactivating]  = useState(false);
+  const [showQR,        setShowQR]        = useState(false);
   const [now,           setNow]           = useState(() => new Date());
   const [copied,        setCopied]        = useState(false);
   const [copiedMsg,     setCopiedMsg]     = useState(false);
@@ -1241,8 +1245,6 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
 
         {/* ── Link & QR Code ── */}
         {(() => {
-          const origin = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== "undefined" ? window.location.origin : ""));
-          const inviteUrl = `${origin}/convite/${event.id}`;
           const shortDisplay = inviteUrl;
           const handleCopy = () => {
             navigator.clipboard.writeText(inviteUrl);
@@ -1289,7 +1291,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                     >
                       <EyeIcon /> Visualizar seu convite
                     </a>
-                    <GhostBtn icon={<DownloadIcon />} onClick={() => showToast("Baixar QR Code — em breve!")}>Baixar QR Code</GhostBtn>
+                    <GhostBtn icon={<QRIcon />} onClick={() => setShowQR(true)}>Gerar QR Code</GhostBtn>
                   </div>
                 </>
               )}
@@ -1342,6 +1344,11 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
           </button>
         </Card>
       </div>
+
+      {/* ── Modal QR Code ── */}
+      {showQR && (
+        <QRModal url={inviteUrl} eventName={eventName} onClose={() => setShowQR(false)} />
+      )}
 
       {/* ── Modal de confirmação de exclusão ── */}
       {showDelete && (
@@ -1613,6 +1620,78 @@ function EventInfoCard({ event, guestLimit, trajeOn, setTrajeOn, acompOn, setAco
           )}
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+// ── QR Code modal ─────────────────────────────────────────────────────────
+function QRModal({ url, eventName, onClose }: { url: string; eventName: string; onClose: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    QRCode.toCanvas(canvasRef.current, url, {
+      width: 280,
+      margin: 2,
+      color: { dark: "#0f0b1e", light: "#ffffff" },
+    }).then(() => setReady(true));
+  }, [url]);
+
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `qrcode-${eventName.toLowerCase().replace(/\s+/g, "-")}.png`;
+    a.click();
+  };
+
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ position: "absolute", inset: 0, background: "rgba(15,11,30,.5)", backdropFilter: "blur(4px)" }} />
+      <div style={{ position: "relative", background: "var(--vw-card)", borderRadius: 20, padding: 32, maxWidth: 380, width: "100%", boxShadow: "0 24px 64px rgba(15,11,30,.2)", display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+        {/* Close */}
+        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", cursor: "pointer", color: "var(--vw-t4)", display: "flex", padding: 4, borderRadius: 6 }}>
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+
+        {/* Header */}
+        <div style={{ textAlign: "center" }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--vw-t1)", margin: "0 0 4px", letterSpacing: "-0.02em" }}>QR Code do convite</h2>
+          <p style={{ fontSize: 13, color: "var(--vw-t3)", margin: 0 }}>{eventName}</p>
+        </div>
+
+        {/* Canvas */}
+        <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid var(--vw-border)", background: "#fff", padding: 12, opacity: ready ? 1 : 0, transition: "opacity .3s" }}>
+          <canvas ref={canvasRef} />
+        </div>
+        {!ready && (
+          <div style={{ position: "absolute", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 28, height: 28, borderRadius: 999, border: "3px solid var(--vw-border)", borderTopColor: "#b14eff", animation: "spin .8s linear infinite" }} />
+          </div>
+        )}
+
+        {/* URL */}
+        <p style={{ fontSize: 11, color: "var(--vw-t4)", fontFamily: "monospace", margin: 0, wordBreak: "break-all", textAlign: "center" }}>{url}</p>
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: 10, width: "100%" }}>
+          <button onClick={onClose} style={{ flex: 1, height: 42, borderRadius: 10, border: "1px solid var(--vw-border)", fontSize: 14, fontWeight: 500, color: "var(--vw-t3)", background: "var(--vw-card)", cursor: "pointer", fontFamily: "inherit" }}>
+            Fechar
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={!ready}
+            style={{ flex: 1, height: 42, borderRadius: 10, border: "none", fontSize: 14, fontWeight: 600, color: "#fff", background: "linear-gradient(135deg,#ff4d8d 0%,#b14eff 60%,#7a3aff 100%)", boxShadow: "0 4px 14px rgba(177,78,255,.3)", cursor: ready ? "pointer" : "not-allowed", opacity: ready ? 1 : 0.6, fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
+          >
+            <DownloadIcon /> Baixar PNG
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1954,4 +2033,5 @@ const EyeIcon      = () => ic("M1.5 8S4 3 8 3s6.5 5 6.5 5S14 13 8 13 1.5 8 1.5 8
 const TrashIcon    = () => ic("M3 4h10M6 4V2.5h4V4M5 4l.5 9.5h5L11 4");
 const PDFIcon      = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1.5H4a1 1 0 00-1 1v11a1 1 0 001 1h8a1 1 0 001-1V6L9 1.5z"/><path d="M9 1.5V6h4.5"/><path d="M5.5 9.5h5M5.5 11.5h3"/></svg>;
 const ListIcon     = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4h10M3 8h10M3 12h6"/><circle cx="1.5" cy="4" r=".6" fill="currentColor" stroke="none"/><circle cx="1.5" cy="8" r=".6" fill="currentColor" stroke="none"/><circle cx="1.5" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>;
+const QRIcon       = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="3" y="3" width="2" height="2" fill="currentColor" stroke="none"/><rect x="11" y="3" width="2" height="2" fill="currentColor" stroke="none"/><rect x="3" y="11" width="2" height="2" fill="currentColor" stroke="none"/><path d="M9.5 9.5h2v2h-2zM11.5 11.5h2v2h-2zM9.5 13.5h2"/></svg>;
 const SpinIcon     = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ animation: "spin .8s linear infinite" }}><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" strokeOpacity=".25"/><path d="M14 8a6 6 0 01-6 6"/></svg>;
