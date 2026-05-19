@@ -1063,7 +1063,9 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
   onPersistInfo: (payload: InfoSavePayload) => Promise<void>;
   onPersistAppearance: (colorId: string, fontId: string) => Promise<void>;
 }) {
-  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== "undefined" ? window.location.origin : "https://vowify.netlify.app")}/convite/${event.id}`;
+  const PROD_URL = "https://vowify.netlify.app";
+  const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? (isLocal ? PROD_URL : (typeof window !== "undefined" ? window.location.origin : PROD_URL))}/convite/${event.id}`;
 
   const [saved,         setSaved]         = useState(false);
   const [showDelete,    setShowDelete]    = useState(false);
