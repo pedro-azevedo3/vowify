@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Donut, Avatar } from "@/components/landing/shared";
 import { supabase } from "@/lib/supabase";
+import { downloadEventoPDF } from "./EventoPDF";
 
 // ── Dark mode context ──────────────────────────────────────────────────────
 const DarkCtx = React.createContext<{ dark: boolean; toggle: () => void }>({ dark: false, toggle: () => {} });
@@ -622,18 +623,53 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
   filtered: Guest[]; guests: Guest[]; guestLimit: number; onDelete: (name: string) => void; eventName: string;
   eventInfo: { date: string; time: string; location: string; address: string }; organizerName: string;
 }) {
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handlePDF = async () => {
+    setPdfLoading(true);
+    const pending = Math.max(0, guestLimit - (confirmedCount + companions) - (counts.declined || 0));
+    await downloadEventoPDF({
+      eventName, organizerName,
+      date: eventInfo.date, time: eventInfo.time,
+      location: eventInfo.location, address: eventInfo.address,
+      guestLimit,
+      confirmed: confirmedCount, companions,
+      declined: counts.declined || 0,
+      pending,
+      guests: guests.map(g => ({
+        name: g.name, phone: g.phone,
+        status: g.status as "confirmed" | "declined" | "pending",
+        plus: g.plus, restriction: g.restriction, at: g.at,
+      })),
+    });
+    setPdfLoading(false);
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0, width: "100%" }}>
-      {/* Header — always column to avoid width conflicts */}
+      {/* Header */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
-            <Pill bg="#e6f7ee" color="#0f6b32" border="rgba(22,163,74,.18)">
-              <span style={{ width: 6, height: 6, borderRadius: 999, background: "#16a34a", display: "inline-block" }} /> Evento ativo
-            </Pill>
-            {buildWhen(eventInfo.date, eventInfo.time) && <span style={{ fontSize: 12, color: "var(--vw-t3)" }}>{buildWhen(eventInfo.date, eventInfo.time)}</span>}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+              <Pill bg="#e6f7ee" color="#0f6b32" border="rgba(22,163,74,.18)">
+                <span style={{ width: 6, height: 6, borderRadius: 999, background: "#16a34a", display: "inline-block" }} /> Evento ativo
+              </Pill>
+              {buildWhen(eventInfo.date, eventInfo.time) && <span style={{ fontSize: 12, color: "var(--vw-t3)" }}>{buildWhen(eventInfo.date, eventInfo.time)}</span>}
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--vw-t1)", margin: 0 }}>{eventName}</h1>
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--vw-t1)", margin: 0 }}>{eventName}</h1>
+          <button
+            onClick={handlePDF}
+            disabled={pdfLoading}
+            style={{ display: "inline-flex", alignItems: "center", gap: 7, height: 38, padding: "0 16px", borderRadius: 10, border: "1px solid var(--vw-border)", fontSize: 13, fontWeight: 500, color: pdfLoading ? "var(--vw-t4)" : "var(--vw-t2)", background: "var(--vw-card)", cursor: pdfLoading ? "not-allowed" : "pointer", fontFamily: "inherit", transition: "background .15s, color .15s", whiteSpace: "nowrap", flexShrink: 0 }}
+            onMouseEnter={e => { if (!pdfLoading) { e.currentTarget.style.background = "var(--vw-hover)"; e.currentTarget.style.color = "var(--vw-t1)"; } }}
+            onMouseLeave={e => { e.currentTarget.style.background = "var(--vw-card)"; e.currentTarget.style.color = "var(--vw-t2)"; }}
+          >
+            {pdfLoading
+              ? <><SpinIcon /> Gerando…</>
+              : <><PDFIcon /> Relatório em PDF</>}
+          </button>
         </div>
       </div>
 
@@ -1896,3 +1932,5 @@ const MenuIcon     = () => ic("M2 4h12M2 8h12M2 12h12");
 const DotsIcon     = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><circle cx="3.5" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="12.5" cy="8" r="1.3"/></svg>;
 const EyeIcon      = () => ic("M1.5 8S4 3 8 3s6.5 5 6.5 5S14 13 8 13 1.5 8 1.5 8zM8 10a2 2 0 100-4 2 2 0 000 4z");
 const TrashIcon    = () => ic("M3 4h10M6 4V2.5h4V4M5 4l.5 9.5h5L11 4");
+const PDFIcon      = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1.5H4a1 1 0 00-1 1v11a1 1 0 001 1h8a1 1 0 001-1V6L9 1.5z"/><path d="M9 1.5V6h4.5"/><path d="M5.5 9.5h5M5.5 11.5h3"/></svg>;
+const SpinIcon     = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ animation: "spin .8s linear infinite" }}><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" strokeOpacity=".25"/><path d="M14 8a6 6 0 01-6 6"/></svg>;
