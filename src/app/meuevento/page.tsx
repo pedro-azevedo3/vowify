@@ -1208,7 +1208,7 @@ function SettingsView({ event, guestLimit, setGuestLimit, eventName, setEventNam
                     >
                       <div>
                         <span style={{ fontSize: 13, fontWeight: 500, color: "var(--vw-t1)", display: "block" }}>{f.label}</span>
-                        <span style={{ fontSize: 16, fontFamily: f.family, color: "var(--vw-t2)", display: "block", lineHeight: 1.3 }}>{f.sample}</span>
+                        <span style={{ fontSize: 16, fontFamily: f.family, color: "var(--vw-t2)", display: "block", lineHeight: 1.3 }}>{eventName || f.sample}</span>
                       </div>
                       {fontId === f.id && (
                         <span style={{ width: 18, height: 18, borderRadius: 999, background: "#b14eff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
