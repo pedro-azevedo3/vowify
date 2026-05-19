@@ -6,7 +6,7 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { LandingProvider } from "@/components/landing/LandingProvider";
 
-const PROD_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vowify.netlify.app";
+const PROD_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vowify.app";
 
 export default function EsqueciSenhaPage() {
   const [email,   setEmail]   = useState("");

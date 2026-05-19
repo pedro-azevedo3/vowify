@@ -27,7 +27,7 @@ export async function generateMetadata(
     ? `${organizer} está te convidando para ${eventName}!`
     : `Você foi convidado para ${eventName}!`;
   const description = `Confirme sua presença em ${eventName}. Leva menos de 10 segundos — sem baixar nada.`;
-  const siteUrl     = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vowify.netlify.app";
+  const siteUrl     = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vowify.app";
 
   return {
     title,
