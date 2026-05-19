@@ -357,7 +357,7 @@ function AuthDropdown({ mode, onSwitch }: { mode: "login" | "register"; onSwitch
         <Field label="E-mail">
           <input type="email" placeholder="voce@exemplo.com" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} style={inputCss} onFocus={inputFocus} onBlur={inputBlur} />
         </Field>
-        <Field label="Senha" right={!isRegister ? <ForgotLink email={email} /> : undefined}>
+        <Field label="Senha" right={!isRegister ? <ForgotLink /> : undefined}>
           <PasswordInput show={showPw} onToggle={() => setShowPw(v => !v)} value={password} onChange={setPassword} autoComplete={isRegister ? "new-password" : "current-password"} />
         </Field>
         {isRegister && (
@@ -417,7 +417,7 @@ function MobileAuthForm({ mode, onSwitch }: { mode: "login" | "register"; onSwit
       <Field label="E-mail">
         <input type="email" placeholder="voce@exemplo.com" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} style={inputCss} onFocus={inputFocus} onBlur={inputBlur} />
       </Field>
-      <Field label="Senha" right={!isRegister ? <ForgotLink email={email} /> : undefined}>
+      <Field label="Senha" right={!isRegister ? <ForgotLink /> : undefined}>
         <PasswordInput show={showPw} onToggle={() => setShowPw(v => !v)} value={password} onChange={setPassword} autoComplete={isRegister ? "new-password" : "current-password"} />
       </Field>
       {isRegister && (
@@ -484,16 +484,11 @@ function Field({ label, right, children }: { label: string; right?: React.ReactN
   );
 }
 
-function ForgotLink({ email }: { email: string }) {
-  const handleReset = async () => {
-    if (!email) { alert("Informe seu e-mail antes de redefinir a senha."); return; }
-    await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/meuevento` });
-    alert(`Link de redefinição enviado para ${email}.`);
-  };
+function ForgotLink() {
   return (
-    <button type="button" onClick={handleReset} style={{ fontSize: 11, color: "#b14eff", background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>
+    <a href="/esqueci-senha" style={{ fontSize: 11, color: "#b14eff", textDecoration: "none", cursor: "pointer" }}>
       Esqueci minha senha
-    </button>
+    </a>
   );
 }
 
