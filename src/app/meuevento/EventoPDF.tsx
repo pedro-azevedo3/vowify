@@ -214,7 +214,70 @@ function EventoDocument({ data }: { data: ReportData }) {
   );
 }
 
-// ── Download trigger ──────────────────────────────────────────────────────
+// ── Lista numerada de convidados ──────────────────────────────────────────
+const ls = StyleSheet.create({
+  page:     { fontFamily: "Helvetica", fontSize: 9, color: C.ink, backgroundColor: C.white, padding: "36 44 48 44" },
+  header:   { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, paddingBottom: 16, borderBottom: `1.5 solid ${C.border}` },
+  title:    { fontSize: 16, fontFamily: "Helvetica-Bold", color: C.ink, letterSpacing: -0.3, marginBottom: 4 },
+  sub:      { fontSize: 8, color: C.mute },
+  row:      { flexDirection: "row", alignItems: "center", padding: "6 0", borderBottom: `0.5 solid ${C.border}` },
+  num:      { width: 24, fontSize: 8, color: C.mute2, fontFamily: "Helvetica-Bold" },
+  name:     { flex: 1, fontSize: 9 },
+  status:   { width: 70 },
+  footer:   { position: "absolute", bottom: 28, left: 44, right: 44, flexDirection: "row", justifyContent: "space-between", borderTop: `0.5 solid ${C.border}`, paddingTop: 8 },
+  footerTx: { fontSize: 7, color: C.mute2 },
+});
+
+function ListaDocument({ data }: { data: ReportData }) {
+  const now = new Date().toLocaleString("pt-BR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return (
+    <Document title={`Lista — ${data.eventName}`} author="Vowify">
+      <Page size="A4" style={ls.page}>
+        <View style={ls.header}>
+          <View>
+            <Text style={ls.title}>{data.eventName}</Text>
+            <Text style={ls.sub}>Lista de convidados · {data.guests.length} pessoas · Gerado em {now}</Text>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <View style={{ width: 18, height: 18, borderRadius: 4, backgroundColor: C.violet, justifyContent: "center", alignItems: "center" }}>
+              <Text style={{ color: C.white, fontSize: 9, fontFamily: "Helvetica-Bold" }}>V</Text>
+            </View>
+            <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: C.ink }}>Vowify</Text>
+          </View>
+        </View>
+
+        {data.guests.map((g, i) => (
+          <View key={i} style={ls.row}>
+            <Text style={ls.num}>{i + 1}.</Text>
+            <Text style={[ls.name, { fontFamily: g.status === "confirmed" ? "Helvetica-Bold" : "Helvetica" }]}>{g.name}</Text>
+            <View style={ls.status}><StatusBadge status={g.status} /></View>
+          </View>
+        ))}
+
+        {data.guests.length === 0 && (
+          <Text style={{ fontSize: 8, color: C.mute, marginTop: 16 }}>Nenhum convidado registrado ainda.</Text>
+        )}
+
+        <View style={ls.footer} fixed>
+          <Text style={ls.footerTx}>vowify.app · {data.eventName}</Text>
+          <Text style={ls.footerTx} render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`} />
+        </View>
+      </Page>
+    </Document>
+  );
+}
+
+// ── Download triggers ─────────────────────────────────────────────────────
+export async function downloadListaPDF(data: ReportData) {
+  const blob = await pdf(<ListaDocument data={data} />).toBlob();
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `lista-${data.eventName.toLowerCase().replace(/\s+/g, "-")}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function downloadEventoPDF(data: ReportData) {
   const blob = await pdf(<EventoDocument data={data} />).toBlob();
   const url  = URL.createObjectURL(blob);

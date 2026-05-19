@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Donut, Avatar } from "@/components/landing/shared";
 import { supabase } from "@/lib/supabase";
-import { downloadEventoPDF } from "./EventoPDF";
+import { downloadEventoPDF, downloadListaPDF } from "./EventoPDF";
 
 // ── Dark mode context ──────────────────────────────────────────────────────
 const DarkCtx = React.createContext<{ dark: boolean; toggle: () => void }>({ dark: false, toggle: () => {} });
@@ -623,12 +623,12 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
   filtered: Guest[]; guests: Guest[]; guestLimit: number; onDelete: (name: string) => void; eventName: string;
   eventInfo: { date: string; time: string; location: string; address: string }; organizerName: string;
 }) {
-  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfLoading,   setPdfLoading]   = useState(false);
+  const [listaLoading, setListaLoading] = useState(false);
 
-  const handlePDF = async () => {
-    setPdfLoading(true);
+  const buildReportData = () => {
     const pending = Math.max(0, guestLimit - (confirmedCount + companions) - (counts.declined || 0));
-    await downloadEventoPDF({
+    return {
       eventName, organizerName,
       date: eventInfo.date, time: eventInfo.time,
       location: eventInfo.location, address: eventInfo.address,
@@ -641,8 +641,19 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
         status: g.status as "confirmed" | "declined" | "pending",
         plus: g.plus, restriction: g.restriction, at: g.at,
       })),
-    });
+    };
+  };
+
+  const handlePDF = async () => {
+    setPdfLoading(true);
+    await downloadEventoPDF(buildReportData());
     setPdfLoading(false);
+  };
+
+  const handleLista = async () => {
+    setListaLoading(true);
+    await downloadListaPDF(buildReportData());
+    setListaLoading(false);
   };
 
   return (
@@ -659,17 +670,26 @@ function DashboardView({ event, counts, total, confirmedCount, companions, respo
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.025em", color: "var(--vw-t1)", margin: 0 }}>{eventName}</h1>
           </div>
-          <button
-            onClick={handlePDF}
-            disabled={pdfLoading}
-            style={{ display: "inline-flex", alignItems: "center", gap: 7, height: 38, padding: "0 16px", borderRadius: 10, border: "1px solid var(--vw-border)", fontSize: 13, fontWeight: 500, color: pdfLoading ? "var(--vw-t4)" : "var(--vw-t2)", background: "var(--vw-card)", cursor: pdfLoading ? "not-allowed" : "pointer", fontFamily: "inherit", transition: "background .15s, color .15s", whiteSpace: "nowrap", flexShrink: 0 }}
-            onMouseEnter={e => { if (!pdfLoading) { e.currentTarget.style.background = "var(--vw-hover)"; e.currentTarget.style.color = "var(--vw-t1)"; } }}
-            onMouseLeave={e => { e.currentTarget.style.background = "var(--vw-card)"; e.currentTarget.style.color = "var(--vw-t2)"; }}
-          >
-            {pdfLoading
-              ? <><SpinIcon /> Gerando…</>
-              : <><PDFIcon /> Relatório em PDF</>}
-          </button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              onClick={handleLista}
+              disabled={listaLoading}
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, height: 38, padding: "0 14px", borderRadius: 10, border: "1px solid var(--vw-border)", fontSize: 13, fontWeight: 500, color: listaLoading ? "var(--vw-t4)" : "var(--vw-t2)", background: "var(--vw-card)", cursor: listaLoading ? "not-allowed" : "pointer", fontFamily: "inherit", transition: "background .15s, color .15s", whiteSpace: "nowrap" }}
+              onMouseEnter={e => { if (!listaLoading) { e.currentTarget.style.background = "var(--vw-hover)"; e.currentTarget.style.color = "var(--vw-t1)"; } }}
+              onMouseLeave={e => { e.currentTarget.style.background = "var(--vw-card)"; e.currentTarget.style.color = "var(--vw-t2)"; }}
+            >
+              {listaLoading ? <><SpinIcon /> Gerando…</> : <><ListIcon /> Lista de convidados</>}
+            </button>
+            <button
+              onClick={handlePDF}
+              disabled={pdfLoading}
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, height: 38, padding: "0 14px", borderRadius: 10, border: "1px solid var(--vw-border)", fontSize: 13, fontWeight: 500, color: pdfLoading ? "var(--vw-t4)" : "var(--vw-t2)", background: "var(--vw-card)", cursor: pdfLoading ? "not-allowed" : "pointer", fontFamily: "inherit", transition: "background .15s, color .15s", whiteSpace: "nowrap" }}
+              onMouseEnter={e => { if (!pdfLoading) { e.currentTarget.style.background = "var(--vw-hover)"; e.currentTarget.style.color = "var(--vw-t1)"; } }}
+              onMouseLeave={e => { e.currentTarget.style.background = "var(--vw-card)"; e.currentTarget.style.color = "var(--vw-t2)"; }}
+            >
+              {pdfLoading ? <><SpinIcon /> Gerando…</> : <><PDFIcon /> Relatório em PDF</>}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1933,4 +1953,5 @@ const DotsIcon     = () => <svg viewBox="0 0 16 16" width="14" height="14" fill=
 const EyeIcon      = () => ic("M1.5 8S4 3 8 3s6.5 5 6.5 5S14 13 8 13 1.5 8 1.5 8zM8 10a2 2 0 100-4 2 2 0 000 4z");
 const TrashIcon    = () => ic("M3 4h10M6 4V2.5h4V4M5 4l.5 9.5h5L11 4");
 const PDFIcon      = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 1.5H4a1 1 0 00-1 1v11a1 1 0 001 1h8a1 1 0 001-1V6L9 1.5z"/><path d="M9 1.5V6h4.5"/><path d="M5.5 9.5h5M5.5 11.5h3"/></svg>;
+const ListIcon     = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4h10M3 8h10M3 12h6"/><circle cx="1.5" cy="4" r=".6" fill="currentColor" stroke="none"/><circle cx="1.5" cy="8" r=".6" fill="currentColor" stroke="none"/><circle cx="1.5" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>;
 const SpinIcon     = () => <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ animation: "spin .8s linear infinite" }}><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" strokeOpacity=".25"/><path d="M14 8a6 6 0 01-6 6"/></svg>;
