@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const ALLOWED_STATUS = new Set(["confirmed", "declined"]);
 const MAX_NAME        = 120;
@@ -58,7 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Busca o evento (verifica existência, expiração e limite) ──────────
-    const { data: event, error: evErr } = await supabaseAdmin
+    const { data: event, error: evErr } = await getAdmin()
       .from("events")
       .select("id, acomp_on, guest_limit, expires_at")
       .eq("id", event_id)
@@ -75,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     // ── Verifica limite de convidados server-side ─────────────────────────
     if (event.guest_limit > 0) {
-      const { count } = await supabaseAdmin
+      const { count } = await getAdmin()
         .from("guests")
         .select("id", { count: "exact", head: true })
         .eq("event_id", event_id);
@@ -86,7 +88,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Upsert do convidado ───────────────────────────────────────────────
-    const { error } = await supabaseAdmin.from("guests").upsert(
+    const { error } = await getAdmin().from("guests").upsert(
       {
         event_id,
         name:        name.trim().slice(0, MAX_NAME),
