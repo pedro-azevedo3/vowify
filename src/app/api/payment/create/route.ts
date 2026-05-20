@@ -28,6 +28,16 @@ async function createBilling(payload: object) {
 }
 
 export async function POST(req: NextRequest) {
+  // Diagnóstico de env vars — remover após resolver
+  const envCheck = {
+    SUPABASE_URL:      !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    SUPABASE_KEY:      !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    ABACATEPAY_KEY:    !!process.env.ABACATEPAY_API_KEY,
+  };
+  if (!envCheck.SUPABASE_URL || !envCheck.SUPABASE_KEY) {
+    return NextResponse.json({ error: "Configuração incompleta.", envCheck }, { status: 500 });
+  }
+
   try {
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") {
