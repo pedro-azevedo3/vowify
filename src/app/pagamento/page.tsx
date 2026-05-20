@@ -142,7 +142,7 @@ function PagamentoContent() {
 
         {/* Métodos aceitos */}
         <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap" }}>
-          {["PIX"].map(m => (
+          {["PIX", "Cartão de crédito"].map(m => (
             <span key={m} style={{ padding: "4px 12px", borderRadius: 999, background: "#fff", border: "1px solid #ece7f5", fontSize: 12, fontWeight: 500, color: "#6e6880" }}>{m}</span>
           ))}
         </div>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const PROD_URL      = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vowify.app";
-const ABACATE_URL   = "https://api.abacatepay.com/v1";
+const ABACATE_URL   = "https://api.abacatepay.com";
 
 function getAdmin() {
   return createClient(
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     const billing = await createBilling({
       frequency: "ONE_TIME",
-      methods:   ["PIX"],
+      methods:   ["PIX", "CARD"],
       products:  [{
         externalId: event_id,
         name:       `Vowify — ${event.name || "Meu Evento"}`,
