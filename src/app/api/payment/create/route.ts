@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const PROD_URL      = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vowify.app";
-const ABACATE_URL   = "https://api.abacatepay.com";
+const ABACATE_URL   = "https://api.abacatepay.com/v1";
 
 function getAdmin() {
   return createClient(
