@@ -90,10 +90,21 @@ export async function POST(req: NextRequest) {
       completionUrl: `${PROD_URL}/pagamento/sucesso?event_id=${event_id}`,
     });
 
-    // Salva o billing ID no evento
-    await admin.from("events").update({ payment_id: billing.data?.id ?? billing.id }).eq("id", event_id);
+    console.log("[payment/create] AbacatePay response:", JSON.stringify(billing));
 
-    return NextResponse.json({ url: billing.data?.url ?? billing.url });
+    const billingId  = billing?.data?.id  ?? billing?.id;
+    const billingUrl = billing?.data?.url ?? billing?.url;
+
+    // Salva o billing ID no evento
+    if (billingId) {
+      await admin.from("events").update({ payment_id: billingId }).eq("id", event_id);
+    }
+
+    if (!billingUrl) {
+      return NextResponse.json({ error: "URL de pagamento não retornada.", raw: billing }, { status: 500 });
+    }
+
+    return NextResponse.json({ url: billingUrl });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[payment/create]", msg);
