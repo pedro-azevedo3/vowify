@@ -84,7 +84,9 @@ export async function POST(req: NextRequest) {
     await admin.from("events").update({ payment_id: billing.data?.id ?? billing.id }).eq("id", event_id);
 
     return NextResponse.json({ url: billing.data?.url ?? billing.url });
-  } catch {
-    return NextResponse.json({ error: "Erro ao criar cobrança." }, { status: 500 });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[payment/create]", msg);
+    return NextResponse.json({ error: "Erro ao criar cobrança.", detail: msg }, { status: 500 });
   }
 }
