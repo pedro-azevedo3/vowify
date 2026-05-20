@@ -12,6 +12,8 @@ function getAdmin() {
 }
 
 async function createBilling(payload: object) {
+  const key = process.env.ABACATEPAY_API_KEY ?? "";
+  console.log("[abacate] key prefix:", key.slice(0, 8), "length:", key.length);
   const res = await fetch(`${ABACATE_URL}/billing/create`, {
     method:  "POST",
     headers: {
