@@ -449,7 +449,7 @@ function GoogleButton() {
   const handleGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/meuevento` },
+      options: { redirectTo: `${window.location.origin}/pagamento` },
     });
   };
   return (

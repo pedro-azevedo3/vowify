@@ -201,7 +201,7 @@ export default function MinhaFestaPage() {
         let firstId = "";
         if (!data || data.length === 0) {
           const { data: created } = await supabase
-            .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName, expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() }).select().single();
+            .from("events").insert({ ...DEFAULT_EVENT, user_id: userId, organizer_name: displayName, expires_at: null }).select().single();
           if (created) {
             setEventsData({ [created.id]: { ...mapFromDb(created), guests: [] } });
             setSidebarEvents([{ id: created.id, name: created.name, when: buildWhen(created.date, created.time) }]);
@@ -225,8 +225,17 @@ export default function MinhaFestaPage() {
           setActiveEventId(data[0].id);
           firstId = data[0].id;
         }
+        // Guarda de pagamento: se o primeiro evento não tem expires_at, redireciona para pagamento
+        if (firstId) {
+          const firstEvent = (data ?? []).find((r: { id: string; expires_at: string | null }) => r.id === firstId) ?? null;
+          const needsPayment = !firstEvent || firstEvent.expires_at === null;
+          if (needsPayment) {
+            window.location.href = `/pagamento?event_id=${firstId}`;
+            return;
+          }
+          loadGuests(firstId);
+        }
         setLoadingEvents(false);
-        if (firstId) loadGuests(firstId);
       } catch {
         setLoadingEvents(false);
       } finally {
@@ -407,7 +416,7 @@ export default function MinhaFestaPage() {
             const orgName = ev?.organizerName || userName;
             const { data: created } = await supabase
               .from("events")
-              .insert({ ...DEFAULT_EVENT, name, user_id: userId, organizer_name: orgName, expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() })
+              .insert({ ...DEFAULT_EVENT, name, user_id: userId, organizer_name: orgName, expires_at: null })
               .select()
               .single();
             if (!created) return;
@@ -415,8 +424,8 @@ export default function MinhaFestaPage() {
             setEventsData(prev => ({ ...prev, [created.id]: newState }));
             setSidebarEvents(prev => [...prev, { id: created.id, name: created.name, when: buildWhen(created.date, created.time) }]);
             setActiveEventId(created.id);
-            setView("settings");
             setShowNewEvent(false);
+            window.location.href = `/pagamento?event_id=${created.id}`;
           }}
         />
       )}
@@ -1813,7 +1822,7 @@ function DeleteEventModal({ eventName, eventId, organizerName, userName, sidebar
             ...DEFAULT_EVENT,
             user_id: userId,
             organizer_name: organizerName || userName,
-            expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+            expires_at: null,
           });
         }
       }
