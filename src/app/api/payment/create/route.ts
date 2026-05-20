@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     const billing = await createBilling({
       frequency: "ONE_TIME",
-      methods:   ["PIX", "CREDIT_CARD", "BOLETO"],
+      methods:   ["PIX"],
       products:  [{
         externalId: event_id,
         name:       `Vowify — ${event.name || "Meu Evento"}`,
